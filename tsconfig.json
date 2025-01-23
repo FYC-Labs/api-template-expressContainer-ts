@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "lib": [
+      "es2020"
+    ],
+    "allowJs": false,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "resolveJsonModule": true,
+    "strictPropertyInitialization": false,
+    "baseUrl": "./src",
+    "paths": {
+      "@config/*": ["config/*"],
+      "@consts/*": ["consts/*"],
+      "@db/*": ["db/*"],
+      "@enums/*": ["enums/*"],
+      "@helpers/*": ["helpers/*"],
+      "@libs/*": ["libs/*"],
+      "@routes/*": ["routes/*"],
+      "@services/*": ["services/*"],
+      "@system/*": ["system/*"],
+      "@customTypes/*": ["types/*"],
+      "@utils/*": ["utils/*"]
+    },
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "src/scripts"]
+}

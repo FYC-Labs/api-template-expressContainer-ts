@@ -1,0 +1,12 @@
+node_modules
+build
+temp
+coverage
+dist
+.env
+.runtime
+prisma
+.DS_Store
+
+!tmp/.gitkeep
+translation.missing.json
