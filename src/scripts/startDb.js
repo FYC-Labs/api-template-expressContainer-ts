@@ -6,7 +6,7 @@ const dockerCommand = `
 docker run --name postgres-local \
   -e POSTGRES_USER=${process.env.POSTGRES_USER} \
   -e POSTGRES_DB=${process.env.POSTGRES_DB} \
-  -p 5433:5432 \
+  -p 5432:5432 \
   -e POSTGRES_HOST_AUTH_METHOD=trust \
   -d postgres:latest
 `;
