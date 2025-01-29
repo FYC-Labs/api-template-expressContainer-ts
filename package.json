@@ -21,7 +21,7 @@
     "prepare": "husky install",
     "test": "jest",
     "changelog": "standard-version --skip.bump --skip.commit --skip.tag",
-    "dev-local": "ts-node-dev --inspect --transpile-only --exit-child --ignore-watch node_modules -r tsconfig-paths/register src/system/infra/http/server.ts"
+    "dev-local": "npx prisma generate && ts-node-dev --inspect --transpile-only --exit-child --ignore-watch node_modules -r tsconfig-paths/register src/system/infra/http/server.ts"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [
