@@ -10,7 +10,7 @@
   },
   "scripts": {
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf yarn.lock && yarn install",
-    "dev": "yarn db && yarn build && yarn start",
+    "dev": "docker-compose up --build",
     "db": "node ./src/scripts/startDb.js",
     "build": "docker build -t template -f Dockerfile.dev .",
     "build-js": "node ./src/scripts/buildDocker.js",

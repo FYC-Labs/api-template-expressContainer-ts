@@ -5,10 +5,10 @@ const { exec } = require('child_process');
 const dockerCommand = `
 docker run --name postgres-local \
   -e POSTGRES_USER=${process.env.POSTGRES_USER} \
-  -e POSTGRES_PASSWORD=${process.env.POSTGRES_PASSWORD} \
   -e POSTGRES_DB=${process.env.POSTGRES_DB} \
-  -p 5432:5432 \
-  -d ${process.env.POSTGRES_DB}
+  -p 5433:5432 \
+  -e POSTGRES_HOST_AUTH_METHOD=trust \
+  -d postgres:latest
 `;
 
 exec(dockerCommand, (error, stdout, stderr) => {
