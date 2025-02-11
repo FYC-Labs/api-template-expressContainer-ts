@@ -10,17 +10,12 @@
   },
   "scripts": {
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf yarn.lock && yarn install",
-    "dev": "docker-compose up --build",
+    "dev": "yarn db && yarn build && yarn start",
     "db": "node ./src/scripts/startDb.js",
-    "build": "docker build -t template -f Dockerfile.dev .",
-    "build-js": "node ./src/scripts/buildDocker.js",
-    "start-js": "node ./src/scripts/startDocker.js",
-    "start": "docker run -p 3001:3001 --name template-container-test template",
+    "build": "node ./src/scripts/buildDocker.js",
+    "start": "node ./src/scripts/startDocker.js",
     "lint": "eslint 'src/**/*.{ts,tsx}' --fix && tsc --noEmit",
-    "i18n": "i18next-scanner --config ./src/system/i18n/extraction.js --output ./src/system/i18n/extraction 'src/**/*.{ts,tsx,js,jsx}'",
-    "prepare": "husky install",
     "test": "jest",
-    "changelog": "standard-version --skip.bump --skip.commit --skip.tag",
     "dev-local": "npx prisma generate && ts-node-dev --inspect --transpile-only --exit-child --ignore-watch node_modules -r tsconfig-paths/register src/system/infra/http/server.ts"
   },
   "lint-staged": {
