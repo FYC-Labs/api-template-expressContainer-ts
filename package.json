@@ -14,8 +14,7 @@
     "dev": "docker compose -f docker-compose.local.yml up --build",
     "start:db": "docker compose -f docker-compose.local.yml up postgres",
     "lint": "eslint 'src/**/*.{ts,tsx}' --fix && tsc --noEmit",
-    "test": "jest",
-    "dev-local": "npx prisma generate && ts-node-dev --inspect --transpile-only --exit-child --ignore-watch node_modules -r tsconfig-paths/register src/system/infra/http/server.ts"
+    "test": "jest"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [
