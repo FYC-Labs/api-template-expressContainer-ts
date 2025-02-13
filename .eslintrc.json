@@ -66,5 +66,24 @@
     "import/resolver": {
       "typescript": {}
     }
-  }
+  },
+  "overrides": [
+    {
+      "files": ["functions/**/*.js"],
+      "env": {
+        "node": true
+      },
+      "extends": ["airbnb-base"],
+      "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "script"
+      },
+      "plugins": ["eslint-plugin-import-helpers"],
+      "rules": {
+        "no-console": "off",
+        "import/no-unresolved": "error",
+        "no-var": "off"
+      }
+    }
+  ]
 }

@@ -16,14 +16,14 @@ FROM --platform=linux/amd64 node:20.0.0 as production
 
 WORKDIR /usr/app
 
-COPY --chmod=+x --from=build /usr/app/package.json /usr/app/yarn.lock /usr/app/wait-for.sh ./
+COPY --chmod=+x --from=build /usr/app/package.json /usr/app/yarn.lock ./
 COPY --chmod=+x --from=build /usr/app/prisma ./prisma
 COPY --chmod=+x --from=build /usr/app/dist ./src
 
-RUN chmod +x ./wait-for.sh
-
-RUN yarn
+#Todo: If we need a dev dependency it will not be available.
+RUN yarn --frozen-lockfile --production
 
 EXPOSE 3333
 
+#Todo: review the yarn prisma migrate deploy. Sometimes we do not want to do a migration everytime
 CMD yarn prisma generate && yarn prisma migrate deploy && node ./src/system/infra/http/server.js

@@ -10,13 +10,12 @@
   },
   "scripts": {
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf yarn.lock && yarn install",
-    "dev": "yarn db && yarn build && yarn start",
+    "dev": "yarn db && npx prisma generate && ts-node-dev --inspect --transpile-only --exit-child --ignore-watch node_modules -r tsconfig-paths/register src/system/infra/http/server.ts",
     "db": "node ./src/scripts/startDb.js",
     "build": "node ./src/scripts/buildDocker.js",
     "start": "node ./src/scripts/startDocker.js",
     "lint": "eslint 'src/**/*.{ts,tsx}' --fix && tsc --noEmit",
-    "test": "jest",
-    "dev-local": "npx prisma generate && ts-node-dev --inspect --transpile-only --exit-child --ignore-watch node_modules -r tsconfig-paths/register src/system/infra/http/server.ts"
+    "test": "jest"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [
