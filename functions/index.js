@@ -31,8 +31,6 @@ exports.auth = onRequest(
       // Construct the full URL (preserve path and query params, but remove the entry path)
       const fullUrl = `${baseUrl}${req.originalUrl.replace(entryPath, '')}`;
 
-      console.log('req.body', req.body);
-
       // // Proxy the request to the target URL
       const response = await fetch(fullUrl, {
         method: req.method,
