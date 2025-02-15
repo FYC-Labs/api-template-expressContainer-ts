@@ -1,0 +1,108 @@
+# This workflow build and push a Docker image to Google Artifact Registry and deploy it to Google Cloud Run
+#
+# Required secrets:
+# - GCP_CREDENTIAL_JSON: A service account JSON key with access to: roles/run.admin, roles/container.admin, roles/iam.serviceAccountUser
+#
+# Required environment variables:
+# - REGISTRY_SERVER_URL: The URL of the Google Artifact Registry region (e.g. us-central1-docker.pkg.dev)
+# - REGISTRY_PROJECT_ID: The id of Google Cloud Project (e.g. my-project)
+# - REGISTRY_REPOSITORY_NAME: The name of the Google Artifact Registry repository (e.g. my-app)
+# - CLOUD_RUN_GCP_REGION: The region of the Google Cloud Run (e.g. us-central1)
+
+name: Build, Release and Deploy
+
+on:
+  push:
+    branches:
+      - "main"
+      - "staging"
+      - "qa"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  deploy:
+    name: Build, Release and Deploy to Cloud Run
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout to branch
+        uses: actions/checkout@v4
+
+      - name: Extract branch name
+        id: extract-branch
+        shell: bash
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+
+      - name: Get package information
+        id: package-info
+        uses: luizfelipelaviola/get-package-info@v2
+
+      - name: Create image base tag
+        shell: bash
+        id: base-tag
+        run: |
+          echo "tag=$REGISTRY_SERVER_URL/$REGISTRY_PROJECT_ID/$REGISTRY_REPOSITORY_NAME/${{ steps.package-info.outputs.name }}" >> $GITHUB_OUTPUT
+        env:
+          REGISTRY_SERVER_URL: ${{ vars.REGISTRY_SERVER_URL }}
+          REGISTRY_PROJECT_ID: ${{ vars.REGISTRY_PROJECT_ID }}
+          REGISTRY_REPOSITORY_NAME: ${{ vars.REGISTRY_REPOSITORY_NAME }}
+
+      - name: Create image tag list
+        shell: bash
+        id: tag
+        run: |
+          if [ ${{ steps.extract-branch.outputs.branch }} == 'main' ];
+          then
+            echo "tag=\
+              ${{ steps.base-tag.outputs.tag }}:${{ steps.package-info.outputs.version }}-${{ steps.extract-branch.outputs.branch }},\
+              ${{ steps.base-tag.outputs.tag }}:latest,\
+              ${{ steps.base-tag.outputs.tag }}:${{ steps.package-info.outputs.version }}\
+              " | xargs >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ steps.base-tag.outputs.tag }}:${{ steps.package-info.outputs.version }}-${{ steps.extract-branch.outputs.branch }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Show tag list
+        shell: bash
+        run: echo ${{ steps.tag.outputs.tag }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Google auth
+        id: auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIAL_JSON }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Configure Docker Client
+        run: |
+          gcloud auth configure-docker --quiet
+          gcloud auth configure-docker ${{ vars.REGISTRY_SERVER_URL }} --quiet
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ steps.tag.outputs.tag }}
+
+      - name: Deploy to Google Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ steps.package-info.outputs.name }}-${{ steps.extract-branch.outputs.branch }}
+          region: ${{ vars.CLOUD_RUN_GCP_REGION }}
+          image: ${{ steps.base-tag.outputs.tag }}:${{ steps.package-info.outputs.version }}-${{ steps.extract-branch.outputs.branch }}
+      - name: Show output
+        run: echo ${{ steps.deploy.outputs.url }}
