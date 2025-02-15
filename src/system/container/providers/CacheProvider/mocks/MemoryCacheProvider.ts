@@ -41,21 +41,17 @@ class MemoryCacheProvider implements ICacheProvider {
   }
 
   public async invalidatePrefix(prefix: string): Promise<void> {
-    const keys = Object.keys(this.cache).filter(key =>
-      key.startsWith(`cache:${prefix}`),
-    );
+    const keys = Object.keys(this.cache).filter((key) => key.startsWith(`cache:${prefix}`));
 
-    keys.forEach(key => {
+    keys.forEach((key) => {
       delete this.cache[key];
     });
   }
 
   public async clearCache(): Promise<void> {
-    const keys = Object.keys(this.cache).filter(key =>
-      key.startsWith(`cache:`),
-    );
+    const keys = Object.keys(this.cache).filter((key) => key.startsWith('cache:'));
 
-    keys.forEach(key => {
+    keys.forEach((key) => {
       delete this.cache[key];
     });
   }

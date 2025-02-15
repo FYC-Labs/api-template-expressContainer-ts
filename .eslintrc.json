@@ -6,9 +6,7 @@
   },
   "extends": [
     "airbnb-base",
-    "plugin:@typescript-eslint/recommended",
-    "prettier",
-    "plugin:prettier/recommended"
+    "plugin:@typescript-eslint/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -17,11 +15,10 @@
   },
   "plugins": [
     "@typescript-eslint",
-    "eslint-plugin-import-helpers",
-    "prettier"
+    "eslint-plugin-import-helpers"
   ],
   "rules": {
-    "prettier/prettier": "error",
+    "consistent-return": "off",
 
     "camelcase": "off",
     "no-console": "off",
@@ -29,7 +26,7 @@
 
     "import/no-unresolved": "error",
     "import/prefer-default-export": "off",
-    "import/no-default-export": "error",
+    "import/no-default-export": "off",
     "import/exports-last": "warn",
     "import/no-import-module-exports": "off",
 
@@ -43,7 +40,6 @@
 
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
-
     "@typescript-eslint/no-unused-vars": ["error", {
       "argsIgnorePattern": "_"
     }],
@@ -59,7 +55,8 @@
       {
         "devDependencies": ["**/*.spec.ts", "**/mocks/*.ts", "jest.config.ts"]
       }
-    ]
+    ],
+    "arrow-body-style": ["off"]
   },
 
   "settings": {

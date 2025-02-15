@@ -20,12 +20,8 @@ const redisDatabaseConnection = executeAction({
   actionName: 'Redis connection',
 });
 
-RedisInMemoryDatabaseProvider.on('error', message =>
-  console.log(`❌ Redis error: "${message}"`),
-);
+RedisInMemoryDatabaseProvider.on('error', (message) => console.log(`❌ Redis error: "${message}"`));
 
-RedisInMemoryDatabaseProvider.on('error', () =>
-  console.log(`❌ Redis disconnected`),
-);
+RedisInMemoryDatabaseProvider.on('error', () => console.log('❌ Redis disconnected'));
 
 export { RedisInMemoryDatabaseProvider, redisDatabaseConnection };

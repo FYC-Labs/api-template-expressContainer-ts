@@ -26,7 +26,7 @@ const validateSchema = (params: {
 
   const validationSchema = Yup.object()
     .shape(schema)
-    .noUnknown(true, t(`@general/INVALID_REQUEST`, 'Invalid request.'));
+    .noUnknown(true, t('@general/INVALID_REQUEST', 'Invalid request.'));
 
   try {
     validationSchema.validateSync(value, {
@@ -34,11 +34,12 @@ const validateSchema = (params: {
       stripUnknown: false,
     });
   } catch (err) {
-    if (err instanceof Yup.ValidationError)
+    if (err instanceof Yup.ValidationError) {
       throw new AppError({
         key: '@general/VALIDATION_FAIL',
         message: err.errors[0],
       });
+    }
     throw new AppError({
       key: '@general/VALIDATION_FATAL_FAILURE',
       message: t(

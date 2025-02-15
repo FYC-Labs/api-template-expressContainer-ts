@@ -11,7 +11,9 @@ interface IRequest {
 }
 
 const validateSchema = async (params: IRequest) => {
-  const { key, t, schema, value } = params;
+  const {
+    key, t, schema, value,
+  } = params;
 
   const validationSchema = Yup.object()
     .shape(schema)
@@ -23,11 +25,12 @@ const validateSchema = async (params: IRequest) => {
       stripUnknown: false,
     });
   } catch (err) {
-    if (err instanceof Yup.ValidationError)
+    if (err instanceof Yup.ValidationError) {
       throw new AppError({
         key: '@address_controller_get/VALIDATION_FAIL',
         message: err.errors[0],
       });
+    }
     throw new AppError({
       key: '@general/VALIDATION_FATAL_FAILURE',
       message: t(

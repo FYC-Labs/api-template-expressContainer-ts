@@ -1,7 +1,8 @@
 // Prerequisites
 import { DatabaseProviderInitialization } from '../../container/providers/DatabaseProvider';
 // Todo: Bring redis back
-// import { InMemoryDatabaseProviderInitialization } from '../../container/providers/InMemoryDatabaseProvider';
+// import { InMemoryDatabaseProviderInitialization }
+// from '../../container/providers/InMemoryDatabaseProvider';
 
 // Bootstrap step import
 
@@ -19,7 +20,7 @@ const Bootstrap = (async () => {
     await prerequisites.reduce((promise, prerequisite) => {
       return promise
         .then(() => prerequisite)
-        .catch(err => {
+        .catch((err) => {
           throw err;
         });
     }, Promise.resolve());
@@ -27,7 +28,7 @@ const Bootstrap = (async () => {
     // Sequence of bootstraping
     // await Condition;
   } catch (err: any) {
-    console.log(`❌ Bootstrap failed. Shutting down.`);
+    console.log('❌ Bootstrap failed. Shutting down.');
     console.log(`${err?.message}`);
     process.exit(1);
   }

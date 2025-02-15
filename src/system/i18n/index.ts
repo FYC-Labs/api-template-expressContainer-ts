@@ -80,7 +80,7 @@ i18next
     // Language detector options
     detection: {
       // Order and from where user language should be detected
-      order: [/* 'path', 'session', */ 'querystring', 'cookie', 'header'],
+      order: ['querystring', 'cookie', 'header'],
 
       // Keys or params to lookup language from
       lookupQuerystring: 'lng',
@@ -105,9 +105,9 @@ i18next
     // Testing env
     ...(process.env.NODE_ENV === 'test'
       ? {
-          lng: 'cimode',
-          initImmediate: true,
-        }
+        lng: 'cimode',
+        initImmediate: true,
+      }
       : {}),
   });
 
@@ -117,15 +117,15 @@ if (process.env.NODE_ENV === 'development' && logs) {
     console.log('🆗 Translation initialized');
   });
 
-  i18next.on('languageChanged', lng => {
+  i18next.on('languageChanged', (lng) => {
     console.log(`🔁 Language changed to ${Object.keys(lng).join(' ')}`);
   });
 
-  i18next.on('loaded', loaded => {
+  i18next.on('loaded', (loaded) => {
     console.log(`🔃 Translation loaded ${Object.keys(loaded).join(', ')}`);
   });
 
-  i18next.on('failedLoading', lng => {
+  i18next.on('failedLoading', (lng) => {
     console.log(`❌ Fail to load translation "${lng}"`);
   });
 

@@ -24,8 +24,7 @@ class Crud {
   }
 
   async update(id: number, data: any) {
-    if (!data && !id)
-      throw new Error('{data} and {id} must be provided in update request.');
+    if (!data && !id) throw new Error('{data} and {id} must be provided in update request.');
     if (!data) throw new Error('{data} must be provided in update request.');
     // if (!id) throw new Error('{id} must be provided.');
 
@@ -62,8 +61,7 @@ class Crud {
   }
 
   async getByField(field: string, value: number | string) {
-    if (!field || !value)
-      throw new Error('{field} and {value} must be provided.');
+    if (!field || !value) throw new Error('{field} and {value} must be provided.');
 
     const valueIsNumber = Number(value);
 

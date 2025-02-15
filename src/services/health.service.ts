@@ -16,6 +16,6 @@ function getPrismaClient(): PrismaClient {
 // Test commit
 export async function getDbConnection() {
   const prisma = getPrismaClient();
-  console.info(await prisma.$connect);
+  console.info('db connection', await prisma.$connect);
   await prisma.$connect();
 }
