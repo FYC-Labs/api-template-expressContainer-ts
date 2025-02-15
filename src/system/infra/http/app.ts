@@ -52,9 +52,9 @@ class App {
 
     // Check version
     if (
-      !semver.valid(appinfo) ||
-      !semver.valid(process.version) ||
-      !semver.gte(process.version, requiredNodeVersion)
+      !semver.valid(appinfo)
+      || !semver.valid(process.version)
+      || !semver.gte(process.version, requiredNodeVersion)
     ) {
       console.clear();
       console.log(

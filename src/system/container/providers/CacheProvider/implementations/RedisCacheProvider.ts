@@ -20,18 +20,19 @@ class RedisCacheProvider implements ICacheProvider {
   }
 
   public async set(key: string, value: any, ttl?: number): Promise<void> {
-    if (ttl)
+    if (ttl) {
       await this.inMemoryDatabaseProvider.set(
         `cache:${key}`,
         JSON.stringify(value),
         'EX',
         ttl,
       );
-    else
+    } else {
       await this.inMemoryDatabaseProvider.set(
         `cache:${key}`,
         JSON.stringify(value),
       );
+    }
   }
 
   public async get<T>(key: string): Promise<T | null> {
@@ -65,7 +66,7 @@ class RedisCacheProvider implements ICacheProvider {
 
     const pipeline = this.inMemoryDatabaseProvider.pipeline();
 
-    keys.forEach(key => {
+    keys.forEach((key) => {
       pipeline.del(key);
     });
 
@@ -73,11 +74,11 @@ class RedisCacheProvider implements ICacheProvider {
   }
 
   public async clearCache(): Promise<void> {
-    const keys = await this.inMemoryDatabaseProvider.keys(`cache:*`);
+    const keys = await this.inMemoryDatabaseProvider.keys('cache:*');
 
     const pipeline = this.inMemoryDatabaseProvider.pipeline();
 
-    keys.forEach(key => {
+    keys.forEach((key) => {
       pipeline.del(key);
     });
 

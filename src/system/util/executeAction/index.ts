@@ -21,12 +21,13 @@ const executeAction = async (params: IParams): Promise<any> => {
     );
     return result;
   } catch (err: any) {
-    if (attempt > 5)
+    if (attempt > 5) {
       throw new Error(
         `❌ ${actionName} failure after ${attempt - 1} retries. ${
           err?.message
         }`,
       );
+    }
 
     console.log(
       `❌ ${actionName} attempt ${attempt} failed. 🔄 Retrying... ${err.message} `,

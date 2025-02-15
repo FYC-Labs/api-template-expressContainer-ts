@@ -21,7 +21,7 @@ const errorMiddleware = async (
 
   // App error
   if (err instanceof AppError) {
-    if (err.key && err.message)
+    if (err.key && err.message) {
       return res.status(err.statusCode).json({
         code: err.key,
         message: err.message,
@@ -29,6 +29,7 @@ const errorMiddleware = async (
           fatal: true,
         }),
       });
+    }
     return res.status(err.statusCode).send();
   }
 
@@ -36,7 +37,7 @@ const errorMiddleware = async (
   const errors = await new Youch(err, req).toJSON();
 
   // Check if is a JSON error
-  if (String(errors.error?.message).includes('JSON at position'))
+  if (String(errors.error?.message).includes('JSON at position')) {
     return res.status(400).json({
       code: '@general/JSON_ERROR',
       message: t(
@@ -44,10 +45,11 @@ const errorMiddleware = async (
         'Your request has problems on the JSON structure.',
       ),
     });
+  }
 
   // Log to server
   console.log(
-    `❌ Application failure: `,
+    '❌ Application failure: ',
     util.inspect(errors, false, null, true),
   );
 
