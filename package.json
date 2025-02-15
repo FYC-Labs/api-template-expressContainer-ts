@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@prisma/client": "^4.2.1",
+    "aws-sdk": "^2.1692.0",
     "cors": "^2.8.5",
     "date-fns": "^2.29.1",
     "dayjs": "^1.11.11",

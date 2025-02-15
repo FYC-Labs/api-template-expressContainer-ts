@@ -1,0 +1,84 @@
+
+name: aws-build-template
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  
+permissions:
+   id-token: write
+   actions: read
+   contents: read
+   security-events: write
+env:
+  AWS_REGION: us-east-1 # Default Region
+  IAM_ROLE_ARN: ${{ secrets.IAM_ROLE_ARN }} # IAM Role ARN if you have configured an Authenticated Role with GitHub Actions. Otherwise use AWS_SECRET_ACCESS_KEY. See Readme for more details
+  AWS_SECRET_ACCESS_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  ECS_CLUSTER: project-ecs-cluster
+  ECS_SERVICE_NAME: project-ecs-service-name
+  ECS_TASK_FAMILY: project-ecs-task-family
+  IMAGE_SSM_PARAM: project/latest-image
+  ECR_URL: ${{ secrets.ECR_URL }}
+  ECR_REPOSITORY: project-ecr/repository
+  CONTAINER_NAME: project-container
+  PATH_TO_DOCKERFILE: Dockerfile.prod
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.1.5
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+         aws-region: ${{ env.AWS_REGION }}
+         role-to-assume: ${{ env.IAM_ROLE_ARN }} # Optional if you have configured an Authenticated Role with GitHub Actions
+        
+        # or use the following if you are not using an authenticated role
+        #  aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        #  aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -f ${{env.PATH_TO_DOCKERFILE}} -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+      - name: Update task definition
+        env:
+          TASK_FAMILY: ${{ env.ECS_TASK_FAMILY }}
+          IMAGE_NAME: "${{ env.ECR_URL }}:${{ github.sha }}"
+        run: |
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition $TASK_FAMILY --region ${{ env.AWS_REGION }})
+          NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$IMAGE_NAME" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.registeredAt) | del(.registeredBy) | del(.compatibilities)')
+          echo $NEW_TASK_DEFINITION > task-definition.json
+      - name: Update SSM Parameter with latest image
+        env:
+          IMAGE_NAME: "${{ env.ECR_URL }}:${{ github.sha }}"
+        run: |
+          aws ssm put-parameter --overwrite --name ${{ env.IMAGE_SSM_PARAM }} --value $IMAGE_NAME
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        if: env.ECS_SERVICE_NAME != ''
+        with:
+          task-definition: task-definition.json
+          service: ${{ env.ECS_SERVICE_NAME }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+          wait-for-minutes: 10
+      - name: Update Task Definition
+        if: env.ECS_SERVICE_NAME == ''
+        env:
+          TASK_FAMILY: ${{ env.ECS_TASK_FAMILY }}
+        run:
+          aws ecs register-task-definition --family $TASK_FAMILY --region ${{ env.AWS_REGION }} --cli-input-json file://task-definition.json
