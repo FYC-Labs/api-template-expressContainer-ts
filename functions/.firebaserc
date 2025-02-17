@@ -1,5 +1,5 @@
 {
   "projects": {
-    "default": "boilerplate-test-2"
+    "default": "{{project-id}}"
   }
 }
