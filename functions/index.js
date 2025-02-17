@@ -1,62 +1,93 @@
-/* eslint-disable global-require */
-/* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { onRequest } = require('firebase-functions/v2/https');
-const fetch = require('node-fetch');
+const fs = require('fs');
 
-exports.auth = onRequest(
+try {
+  fs.readFileSync('./.env').toString().split('\n').map((l) => l.trim())
+    .forEach((line) => {
+      console.log('line', line);
+      if (line === '' || line.startsWith('#')) {
+        return;
+      }
+
+      const equalAtIndex = line.indexOf('=');
+      if (equalAtIndex) {
+        const key = line.slice(0, equalAtIndex);
+        const value = line.slice(equalAtIndex + 1);
+
+        process.env[key] = value;
+      }
+    });
+} catch (error) {
+  console.error(`Could not load env vars: ${error.message}`);
+}
+
+process.env.STORAGE_PROVIDER = 'firestore';
+process.env.IDENTITY_PROVIDER = 'firebase';
+
+const firebase = require('firebase-admin');
+const functions = require('firebase-functions/v2');
+const axios = require('axios');
+
+const forwarder = axios.create({
+  validateStatus() {
+    return true;
+  },
+});
+
+console.log('process.env', process.env);
+
+firebase.initializeApp({
+  credential: firebase.credential.cert(JSON.parse(process.env.FUNCTIONS_SERVICE_ACCOUNT || '{}')),
+});
+
+const serverlessAuthorizer = require('./serverless-authorizer/core');
+
+const authorizeAndForwardRequest = (baseUrl) => async (req, res) => {
+  try {
+    const { path } = req;
+    if (path === '/_echo') {
+      return res.send({ message: 'OK' });
+    }
+
+    const { method } = req;
+    const { headers } = req;
+    const authorizationResult = await serverlessAuthorizer({ path, method, headers });
+    if (authorizationResult.isAuthorized) {
+      const backendUrl = `${baseUrl}${req.url}`;
+      const args = method === 'GET' || method === 'DELETE' ? [backendUrl, { headers }] : [backendUrl, req.rawBody, { headers }];
+      const response = await forwarder[method.toLowerCase()](...args);
+      return res.status(response.status).send(response.data);
+    }
+    return res.status(401).send({ message: authorizationResult.message });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({ message: error.message });
+  }
+};
+
+const BASE_SETTINGS = {
+  egressSettings: 'ALL_TRAFFIC',
+  vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+};
+
+exports.auth = functions.https.onRequest(
   {
-    region: 'us-central1',
+    ...BASE_SETTINGS,
+    memory: '2GiB',
     vpcConnector: 'cloud-functions-connector',
-    egressSettings: 'ALL_TRAFFIC',
-    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+    secrets: ['BACKEND_URL', 'AUTH_HASH_SECRET'],
+    cors: [],
   },
-  async (req, res) => {
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  authorizeAndForwardRequest(process.env.BACKEND_URL),
+);
 
-    if (req.method === 'OPTIONS') {
-      return res.status(204).send('');
-    }
-
-    try {
-      // Determine the target base URL
-      const baseUrl = process.env.TARGET_URL;
-      const entryPath = process.env.ENTRY_PATH;
-
-      if (!baseUrl) {
-        throw new Error('Target URL is not configured');
-      }
-
-      // Construct the full URL (preserve path and query params, but remove the entry path)
-      const fullUrl = `${baseUrl}${req.originalUrl.replace(entryPath, '')}`;
-
-      // // Proxy the request to the target URL
-      const response = await fetch(fullUrl, {
-        method: req.method,
-        headers: {
-          ...req.headers,
-          host: new URL(baseUrl).host, // Ensure correct host header
-        },
-        body:
-          req.method !== 'GET' && req.method !== 'HEAD'
-            ? JSON.stringify(req.body)
-            : undefined,
-      });
-
-      // Determine response content type
-      const contentType = response.headers.get('content-type');
-
-      let responseData;
-      if (contentType && contentType.includes('application/json')) {
-        responseData = await response.json();
-        res.status(response.status).json(responseData);
-      } else {
-        responseData = await response.text();
-        res.status(response.status).send(responseData);
-      }
-    } catch (error) {
-      res.status(500).json({ authorized: false, error: error.message });
-    }
+exports.auth_qa = functions.https.onRequest(
+  {
+    ...BASE_SETTINGS,
+    memory: '512MiB',
+    vpcConnector: 'cloud-functions-connector',
+    secrets: ['BACKEND_URL_QA', 'AUTH_HASH_SECRET_QA'],
+    cors: [],
   },
+  authorizeAndForwardRequest(process.env.BACKEND_URL_QA),
 );
