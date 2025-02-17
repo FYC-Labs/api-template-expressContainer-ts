@@ -6,9 +6,6 @@
 // Prerequisite: Create a .env file with PROJECT_ID
 
 require('dotenv').config();
-const { execSync } = require('child_process');
-const readline = require('readline/promises');
-const fs = require('fs');
 const path = require('path');
 
 const gcpAuth = require('./scripts/gcpAuth.js');
