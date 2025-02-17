@@ -5,7 +5,6 @@ coverage
 dist
 .env
 .runtime
-prisma
 .DS_Store
 firebase-debug.log
 infrastructure/terraform-sa-key.json
