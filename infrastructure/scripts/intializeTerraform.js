@@ -8,7 +8,7 @@ require('dotenv').config();
 const { execSync } = require('child_process');
 const readline = require('readline/promises');
 
-const { PROJECT_ID } = process.env;
+const { PROJECT_ID, REGION } = process.env;
 const TF_SA_KEY_PATH = './terraform-sa-key.json';
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
@@ -59,6 +59,21 @@ async function intializeTerraform() {
 
       // Firebase Storage Bucket
       { resource: 'google_storage_bucket.firebase_storage', id: `${PROJECT_ID}.firebasestorage.app` },
+      // 🆕 Cloud Run and VPC Resources
+      { resource: 'google_project_service.cloud_run', id: `${PROJECT_ID}/run.googleapis.com` },
+      { resource: 'google_project_service.vpc_access', id: `${PROJECT_ID}/vpcaccess.googleapis.com` },
+
+      // VPC Network
+      { resource: 'google_compute_network.main', id: `projects/${PROJECT_ID}/global/networks/main-vpc` },
+
+      // VPC Subnetwork
+      { resource: 'google_compute_subnetwork.main', id: `projects/${PROJECT_ID}/regions/${REGION}/subnetworks/main-subnet` },
+
+      // VPC Connector
+      { resource: 'google_vpc_access_connector.main', id: `projects/${PROJECT_ID}/locations/${REGION}/connectors/main-vpc-connector` },
+
+      // Cloud Run Service
+      { resource: 'google_cloud_run_service.default', id: `projects/${PROJECT_ID}/locations/${REGION}/services/my-cloud-run-service` },
     ];
 
     imports.forEach(({ resource, id }) => {
