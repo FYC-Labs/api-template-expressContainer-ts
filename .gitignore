@@ -7,6 +7,7 @@ dist
 .runtime
 prisma
 .DS_Store
+firebase-debug.log
 
 !tmp/.gitkeep
 translation.missing.json
