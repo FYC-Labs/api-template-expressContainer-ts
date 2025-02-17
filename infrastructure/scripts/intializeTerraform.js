@@ -74,6 +74,11 @@ async function intializeTerraform() {
 
       // Cloud Run Service
       { resource: 'google_cloud_run_service.default', id: `projects/${PROJECT_ID}/locations/${REGION}/services/my-cloud-run-service` },
+
+      // 🆕 Identity Platform Tenants
+      { resource: 'google_identity_platform_tenant.prod', id: `projects/${PROJECT_ID}/tenants/{TENANT_ID_PROD}` },
+      { resource: 'google_identity_platform_tenant.qa', id: `projects/${PROJECT_ID}/tenants/{TENANT_ID_QA}` },
+
     ];
 
     imports.forEach(({ resource, id }) => {

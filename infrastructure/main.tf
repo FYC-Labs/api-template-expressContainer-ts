@@ -118,6 +118,30 @@ resource "google_identity_platform_config" "auth" {
   }
 }
 
+### 🏢 Identity Platform Tenant for Prod ###
+resource "google_identity_platform_tenant" "prod" {
+  project = var.project_id
+  display_name = "Production Tenant"
+  allow_password_signup = true
+  enable_email_link_signin = false
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = all
+  }
+}
+
+### 🧪 Identity Platform Tenant for QA ###
+resource "google_identity_platform_tenant" "qa" {
+  project = var.project_id
+  display_name = "QA Tenant"
+  allow_password_signup = true
+  enable_email_link_signin = false
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = all
+  }
+}
+
 ### 🌐 Firebase Hosting Sites ###
 resource "google_firebase_hosting_site" "prod" {
   project  = var.project_id
