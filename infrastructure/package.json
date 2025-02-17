@@ -1,0 +1,13 @@
+{
+  "name": "tool-gcp-tf",
+  "version": "1.0.0",
+  "main": "prepInfra.js",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "redline": "^1.0.1"
+  },
+  "scripts": {
+    "infra": "node prepInfra.js"
+  }
+}
