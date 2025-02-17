@@ -8,6 +8,7 @@ dist
 prisma
 .DS_Store
 firebase-debug.log
+infrastructure/terraform-sa-key.json
 
 !tmp/.gitkeep
 translation.missing.json

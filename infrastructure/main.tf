@@ -2,7 +2,7 @@
 variable "project_id" {
   description = "The GCP project ID"
   type        = string
-  default     = "{{project-id}}"
+  default     = "boilerplate-test-2"
 }
 
 variable "region" {
@@ -67,7 +67,7 @@ resource "google_project_service" "cloud_storage" {
 }
 
 ### 🚀 Cloud SQL Instances ###
-resource "google_sql_database_instance" "prod" {
+resource "google_sql_database_instance" "sql-prod" {
   name             = "sql-prod"
   database_version = "POSTGRES_15"
   region           = var.region
@@ -93,7 +93,7 @@ resource "google_sql_database_instance" "prod" {
   }
 }
 
-resource "google_sql_database_instance" "qa" {
+resource "google_sql_database_instance" "sql-qa" {
   name             = "sql-qa"
   database_version = "POSTGRES_15"
   region           = var.region
@@ -143,18 +143,12 @@ resource "google_firebase_hosting_site" "qa" {
 
 ### 🗂️ Firebase Storage Bucket ###
 resource "google_storage_bucket" "firebase_storage" {
-  name                        = "${var.project_id}.appspot.com"
+  name                        = "${var.project_id}.firebasestorage.app"
   location                    = var.region
   uniform_bucket_level_access = true
+  storage_class               = "REGIONAL"
 
   lifecycle {
     prevent_destroy = true
   }
-}
-
-### 🎲 Random String (for Bucket Suffix or Unique IDs) ###
-resource "random_string" "bucket_suffix" {
-  length  = 6
-  special = false
-  upper   = false
 }
