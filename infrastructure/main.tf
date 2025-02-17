@@ -2,7 +2,7 @@
 variable "project_id" {
   description = "The GCP project ID"
   type        = string
-  default     = "boilerplate-test-2"
+  default     = "{{project_id}}"
 }
 
 variable "region" {
@@ -151,4 +151,42 @@ resource "google_storage_bucket" "firebase_storage" {
   lifecycle {
     prevent_destroy = true
   }
+}
+
+
+### 🌐 Enable Cloud Run and VPC Access APIs ###
+resource "google_project_service" "cloud_run" {
+  project            = var.project_id
+  service            = "run.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "vpc_access" {
+  project            = var.project_id
+  service            = "vpcaccess.googleapis.com"
+  disable_on_destroy = false
+}
+
+### 🌉 VPC Network ###
+resource "google_compute_network" "main" {
+  name                    = "main-vpc"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "main" {
+  name          = "main-subnet"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = var.region
+  network       = google_compute_network.main.id
+}
+
+### 🔌 VPC Connector ###
+resource "google_vpc_access_connector" "main" {
+  name          = "main-vpc-connector"
+  region        = var.region
+  network       = google_compute_network.main.name
+  ip_cidr_range = "10.8.0.0/28"
+  machine_type  = "e2-micro"
+  min_instances = 2
+  max_instances = 3
 }
