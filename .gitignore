@@ -9,6 +9,9 @@ prisma
 .DS_Store
 firebase-debug.log
 infrastructure/terraform-sa-key.json
+infrastructure/.terraform
+infrastructure/.terraform.tfstate.backup
+infrastructure/tfplan
 
 !tmp/.gitkeep
 translation.missing.json
