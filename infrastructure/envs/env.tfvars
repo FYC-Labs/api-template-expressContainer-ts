@@ -1,0 +1,5 @@
+project_name = "project"
+aws_region = "us-east-1"
+aws_profile = "default"
+aws_account_id = ""
+aws_vpc_cidr = "
