@@ -4,7 +4,6 @@ const fs = require('fs');
 try {
   fs.readFileSync('./.env').toString().split('\n').map((l) => l.trim())
     .forEach((line) => {
-      console.log('line', line);
       if (line === '' || line.startsWith('#')) {
         return;
       }
@@ -33,8 +32,6 @@ const forwarder = axios.create({
     return true;
   },
 });
-
-console.log('process.env', process.env);
 
 firebase.initializeApp({
   credential: firebase.credential.cert(JSON.parse(process.env.FUNCTIONS_SERVICE_ACCOUNT || '{}')),
@@ -66,28 +63,26 @@ const authorizeAndForwardRequest = (baseUrl) => async (req, res) => {
 };
 
 const BASE_SETTINGS = {
-  egressSettings: 'ALL_TRAFFIC',
+  vpcConnector: 'cloud-functions-connector',
   vpcConnectorEgressSettings: 'ALL_TRAFFIC',
 };
 
-exports.auth = functions.https.onRequest(
+exports.authorizer = functions.https.onRequest(
   {
     ...BASE_SETTINGS,
     memory: '2GiB',
-    vpcConnector: 'cloud-functions-connector',
     secrets: ['BACKEND_URL', 'AUTH_HASH_SECRET'],
-    cors: [],
+    // cors: [],
   },
   authorizeAndForwardRequest(process.env.BACKEND_URL),
 );
 
-exports.auth_qa = functions.https.onRequest(
+exports.authorizer_qa = functions.https.onRequest(
   {
     ...BASE_SETTINGS,
     memory: '512MiB',
-    vpcConnector: 'cloud-functions-connector',
     secrets: ['BACKEND_URL_QA', 'AUTH_HASH_SECRET_QA'],
-    cors: [],
+    // cors: [],
   },
   authorizeAndForwardRequest(process.env.BACKEND_URL_QA),
 );
