@@ -2,7 +2,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocumentClient, GetCommand, ScanCommand } = require('@aws-sdk/lib-dynamodb');
-const { getPrefixedCollection } = require('./helpers');
+
+const { COLLECTION_PREFIX } = process.env;
+
+function getPrefixedCollection(name) {
+  const prefix = COLLECTION_PREFIX || '';
+  return `${prefix}${name}`;
+}
 
 const dynamoDBClient = new DynamoDBClient({
   region: 'us-east-1',
