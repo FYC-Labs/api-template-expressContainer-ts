@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-1" 
-}
-
 resource "aws_ecs_cluster" "project_ecs_cluster" {
   name = "${var.project_name}-${var.environment}-cluster"
 }
@@ -85,7 +81,7 @@ resource "aws_ecs_task_definition" "project_task" {
   container_definitions = jsonencode([
     {
       name      = "${var.project_name}-container"
-      image     = "${aws_ecr_repository.my_repo.repository_url}:latest"
+      image     = "${aws_ecr_repository.project_ecr.repository_url}:latest"
       cpu       = 256
       memory    = 512
       essential = true

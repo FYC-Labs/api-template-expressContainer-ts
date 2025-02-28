@@ -31,6 +31,42 @@ resource "aws_api_gateway_rest_api" "rest_api" {
   description = "REST API with VPC Link integration"
 }
 
+resource "aws_iam_role" "lambda_role" {
+  name = "${var.project_name}-lambda-role"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+  
+}
+EOF
+}
+
+resource "aws_lambda_function" "lambda_authorizer" {
+  function_name = "${var.project_name}-authorizer"
+  handler       = "index.handler"
+  runtime       = "nodejs12.x"
+  filename      = ""
+  role          = aws_iam_role.lambda_role.arn
+}
+
+
+resource "aws_apigatewayv2_authorizer" "lambda_authorizer" {
+  api_id          = aws_api_gateway_rest_api.rest_api.id
+  name            = "lambda_authorizer"
+  authorizer_type = "REQUEST"
+  authorizer_uri  = aws_lambda_function.lambda_authorizer.invoke_arn
+  identity_sources = ["$request.header.Authorization"]
+}
+
 resource "aws_lambda_permission" "authorizer_permission" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
@@ -38,12 +74,7 @@ resource "aws_lambda_permission" "authorizer_permission" {
   principal     = "apigateway.amazonaws.com"
 }
 
-resource "aws_apigateway_authorizer" "lambda_authorizer" {
-  name                   = "Lambda_Authorizer"
-  rest_api_id            = aws_api_gateway_rest_api.rest_api.id
-  type                   = "TOKEN"
-  authorizer_uri         = aws_lambda_function.lambda_authorizer.invoke_arn
-}
+
 
 resource "aws_api_gateway_resource" "proxy_resource" {
   rest_api_id = aws_api_gateway_rest_api.rest_api.id
@@ -56,7 +87,7 @@ resource "aws_api_gateway_method" "proxy_method" {
   resource_id   = aws_api_gateway_resource.proxy_resource.id
   http_method   = "ANY"
   authorization = "CUSTOM"
-  authorizer_id = aws_apigateway_authorizer.lambda_authorizer.id
+  authorizer_id = aws_apigatewayv2_authorizer.lambda_authorizer.id
 }
 
 resource "aws_api_gateway_integration" "vpc_link_integration" {

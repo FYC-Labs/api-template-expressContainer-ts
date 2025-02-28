@@ -1,18 +1,9 @@
-terraform {
-    required_providers {
-        aws = {
-        source  = "hashicorp/aws"
-        version = "~> 5.0"
-        }
-    }
-}
-
 provider "aws" {
     region = "us-east-1"
     # shared_config_files = ["~/.aws/config", "~/.aws/credentials"]
-    assume_role {
-        role_arn = "arn:aws:iam::${var.aws_arn}:role/terraform"
-    }
+    # assume_role {
+    #     role_arn = ""
+    # }
 }
 
 resource "aws_vpc" "project_vpc" {

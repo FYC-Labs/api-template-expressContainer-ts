@@ -6,7 +6,7 @@ resource "aws_security_group" "rds_connections" {
     from_port = 3306
     to_port = 3306
     protocol = "tcp"
-    cidr_blocks = ["IP_ADDRESS/32"] # Replace with your IP address
+    # cidr_blocks = ["IP_ADDRESS/32"] # Replace with your IP address
   }
 
   egress {

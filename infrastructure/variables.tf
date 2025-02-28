@@ -10,6 +10,7 @@ variable "aws_profile" {
   default     = "default"
 }
 
+
 variable "aws_account_id" {
   type = string
   description = "The AWS account ID"
@@ -20,6 +21,7 @@ variable "aws_vpc_cidr" {
   description = "The CIDR block for the VPC"
   default     = "10.0.0.0/16"
 }
+
 
 variable "aws_arn" {
   type = string
