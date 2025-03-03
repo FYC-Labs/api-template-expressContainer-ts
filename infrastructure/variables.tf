@@ -10,6 +10,23 @@ variable "aws_profile" {
   default     = "default"
 }
 
+variable "access_key" {
+  type = string
+  description = "The AWS access key"
+  
+}
+
+variable "aws_access_secret" {
+  type = string
+  description = "The AWS access secret"
+  
+}
+
+variable "aws_session_token" {
+  type = string
+  description = "The AWS session token"
+  
+}
 
 variable "aws_account_id" {
   type = string
