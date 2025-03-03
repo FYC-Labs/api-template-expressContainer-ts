@@ -10,13 +10,13 @@ variable "aws_profile" {
   default     = "default"
 }
 
-variable "access_key" {
+variable "aws_access_key" {
   type = string
   description = "The AWS access key"
   
 }
 
-variable "aws_access_secret" {
+variable "aws_secret_key" {
   type = string
   description = "The AWS access secret"
   
