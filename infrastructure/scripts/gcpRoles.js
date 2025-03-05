@@ -46,6 +46,7 @@ function gcpIAMRoles(currentAccount) {
     try {
       console.log(`🔑 Assigning ${role.role} to ${currentAccount}...`);
       execSync(`gcloud ${role.level} add-iam-policy-binding "${ID}" \
+        --condition="None" \
         --member="user:${currentAccount}" \
         --role="${role.role}"`, { stdio: 'inherit' });
       console.log(`✅ Successfully granted ${role.role} to ${currentAccount}`);
