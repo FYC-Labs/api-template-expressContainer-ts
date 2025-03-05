@@ -1,18 +1,18 @@
 # Build environment
-FROM --platform=linux/amd64 node:20.0.0 as build
+FROM --platform=linux/amd64 node:22-alpine as build
 
 WORKDIR /usr/app
 
 COPY package.json yarn.lock ./
 
-RUN yarn
+RUN yarn install --frozen-lockfile
 
 COPY . .
 
 RUN yarn build
 
 # Production environment
-FROM --platform=linux/amd64 node:20.0.0 as production
+FROM --platform=linux/amd64 node:22-alpine as production
 
 WORKDIR /usr/app
 
@@ -22,7 +22,7 @@ COPY --chmod=+x --from=build /usr/app/dist ./src
 
 RUN chmod +x ./wait-for.sh
 
-RUN yarn
+RUN yarn install --frozen-lockfile --production
 
 EXPOSE 3333
 
