@@ -34,9 +34,11 @@ function createOrUpdateServiceAccountPermissions() {
     }
     console.log('🔑 Ensuring service account has the correct permissions...');
     execSync(`gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+      --condition="None" \
       --member="serviceAccount:${TF_SA_EMAIL}" \
       --role="roles/owner"`, { stdio: 'inherit' });
     execSync(`gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+      --condition="None" \
       --member="serviceAccount:${TF_SA_EMAIL}" \
       --role="roles/resourcemanager.projectIamAdmin"`, { stdio: 'inherit' });
   } catch (error) {
