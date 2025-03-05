@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 3001
 
-CMD yarn dev-local
+CMD npx prisma generate && ts-node-dev --inspect --transpile-only --exit-child --ignore-watch node_modules -r tsconfig-paths/register src/system/infra/http/server.ts
