@@ -10,43 +10,10 @@ variable "aws_profile" {
   default     = "default"
 }
 
-variable "aws_access_key" {
-  type = string
-  description = "The AWS access key"
-  
-}
-
-variable "aws_secret_key" {
-  type = string
-  description = "The AWS access secret"
-  
-}
-
-variable "aws_session_token" {
-  type = string
-  description = "The AWS session token"
-  
-}
-
-variable "aws_account_id" {
-  type = string
-  description = "The AWS account ID"
-}
-
 variable "aws_vpc_cidr" {
   type = string
   description = "The CIDR block for the VPC"
   default     = "10.0.0.0/16"
-}
-
-
-variable "aws_arn" {
-  type = string
-  description = "The ARN for the AWS account"
-  validation {
-    condition = length(var.aws_arn) > 0
-    error_message = "The ARN must be provided"
-  }
 }
 
 variable "project_name" {

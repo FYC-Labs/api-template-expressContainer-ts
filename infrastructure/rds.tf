@@ -37,8 +37,8 @@ resource "aws_db_instance" "postgres" {
   allocated_storage = 20
   storage_type = "gp2"
   publicly_accessible = true
-  db_name = "project-db"
-  username = "admin"
+  db_name = "${var.project_name}_${var.environment}"
+  username = "masterAdmin"
   manage_master_user_password = "true"
   vpc_security_group_ids = [aws_security_group.rds_connections.id]
   db_subnet_group_name = aws_db_subnet_group.rds_subnet_group.name

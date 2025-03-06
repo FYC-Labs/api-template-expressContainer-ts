@@ -7,6 +7,17 @@ dist
 .runtime
 prisma
 .DS_Store
+.terraform
+.terraform.lock.hcl
+.terraform/
+authorizer.zip
+/functions/lambda-authorizer/authorizer.zip
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+/infrastructure/terraform/.terraform
+/infrastructure/terraform/.terraform/*
+/infrastructure/terraform/terraform.tfstate
 
 !tmp/.gitkeep
 translation.missing.json
