@@ -14,8 +14,6 @@
     "dev": "docker compose -f docker-compose.local.yml up --build",
     "start:container": "docker-compose up -f docker-compose.yml",
     "terraform": "cd infrastructure && ./credentials.sh",
-    "db": "node ./src/scripts/startDb.js",
-    "build": "node ./src/scripts/buildDocker.js",
     "lint": "eslint 'src/**/*.{ts,tsx}' --fix && tsc --noEmit",
     "test": "jest",
     "dev-local": "npx prisma generate && ts-node-dev --inspect --transpile-only --exit-child --ignore-watch node_modules -r tsconfig-paths/register src/system/infra/http/server.ts"
