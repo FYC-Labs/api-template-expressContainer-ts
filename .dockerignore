@@ -5,3 +5,11 @@ yarn-error.log
 Dockerfile
 .git
 .gitignore
+infrastructure/
+infrastructure/*
+functions/
+functions/*
+.env
+.env.local
+.env.development
+.env.test

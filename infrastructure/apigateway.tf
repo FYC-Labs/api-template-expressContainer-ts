@@ -20,10 +20,10 @@ resource "aws_security_group" "api_gateway_sg" {
   }
 }
 
-resource "aws_apigatewayv2_vpc_link" "vpc_link" {
+resource "aws_api_gateway_vpc_link" "vpc_link" {
   name        = "${var.project_name}-vpc-link"
-  security_group_ids = [aws_security_group.api_gateway_sg.id]
-  subnet_ids  = [aws_subnet.project_subnet_1.id, aws_subnet.project_subnet_2.id]
+  target_arns = [aws_lb.nlb.arn]
+  description = "VPC Link to NLB"
 }
 
 resource "aws_api_gateway_rest_api" "rest_api" {
@@ -53,19 +53,20 @@ EOF
 resource "aws_lambda_function" "lambda_authorizer" {
   function_name = "${var.project_name}-authorizer"
   handler       = "index.handler"
-  runtime       = "nodejs12.x"
-  filename      = ""
+  runtime       = "nodejs20.x"
+  filename      = "../functions/lambda-authorizer/authorizer.zip"
   role          = aws_iam_role.lambda_role.arn
 }
 
 
-resource "aws_apigatewayv2_authorizer" "lambda_authorizer" {
-  api_id          = aws_api_gateway_rest_api.rest_api.id
-  name            = "lambda_authorizer"
-  authorizer_type = "REQUEST"
+resource "aws_api_gateway_authorizer" "lambda_authorizer" {
+  rest_api_id = aws_api_gateway_rest_api.rest_api.id
+  name            = "${var.project_name}-authorizer"
   authorizer_uri  = aws_lambda_function.lambda_authorizer.invoke_arn
-  identity_sources = ["$request.header.Authorization"]
+  authorizer_credentials = aws_iam_role.lambda_role.arn
+  type = "REQUEST"
 }
+  
 
 resource "aws_lambda_permission" "authorizer_permission" {
   statement_id  = "AllowExecutionFromAPIGateway"
@@ -73,8 +74,6 @@ resource "aws_lambda_permission" "authorizer_permission" {
   function_name = aws_lambda_function.lambda_authorizer.function_name
   principal     = "apigateway.amazonaws.com"
 }
-
-
 
 resource "aws_api_gateway_resource" "proxy_resource" {
   rest_api_id = aws_api_gateway_rest_api.rest_api.id
@@ -87,7 +86,7 @@ resource "aws_api_gateway_method" "proxy_method" {
   resource_id   = aws_api_gateway_resource.proxy_resource.id
   http_method   = "ANY"
   authorization = "CUSTOM"
-  authorizer_id = aws_apigatewayv2_authorizer.lambda_authorizer.id
+  authorizer_id = aws_api_gateway_authorizer.lambda_authorizer.id
 }
 
 resource "aws_api_gateway_integration" "vpc_link_integration" {
@@ -97,8 +96,8 @@ resource "aws_api_gateway_integration" "vpc_link_integration" {
   type                    = "HTTP_PROXY"
   integration_http_method  = "ANY"
   connection_type         = "VPC_LINK"
-  connection_id           = aws_apigatewayv2_vpc_link.vpc_link.id
-  uri                     = "http://${aws_lb.nlb.dns_name}"
+  connection_id           = aws_api_gateway_vpc_link.vpc_link.id
+  uri                     = "http://${aws_lb.nlb.dns_name}/{proxy}"
 }
 
 resource "aws_api_gateway_deployment" "deployment" {

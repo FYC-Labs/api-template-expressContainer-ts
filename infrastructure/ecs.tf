@@ -6,12 +6,12 @@ resource "aws_cloudwatch_log_group" "project_ecs_logs" {
 }
 
 resource "aws_ecr_repository" "project_ecr" {
-  name = "${var.project_name}-ecr"
+  name = "${var.environment}_ecr"
   image_tag_mutability = "MUTABLE"
 }
 
 resource "aws_security_group" "ecs_sg" {
-  vpc_id = data.aws_vpc.project_vpc.id
+  vpc_id = aws_vpc.project_vpc.id
   name   = "ecs-nlb-security-group"
 
   ingress {
@@ -36,12 +36,6 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
-data "aws_vpc" "project_vpc" {
-  tags = {
-    Name = var.project_name
-  }
-}
-
 resource "aws_lb" "nlb" {
   name               = "${var.project_name}-nlb"
   internal           = true
@@ -54,7 +48,7 @@ resource "aws_lb_target_group" "ecs_tg" {
   name        = "ecs-target-group"
   port        = 80
   protocol    = "TCP"
-  vpc_id      = data.aws_vpc.project_vpc.id
+  vpc_id      = aws_vpc.project_vpc.id
   target_type = "ip"
 }
 
@@ -122,7 +116,7 @@ resource "aws_ecs_service" "my_service" {
 }
 
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "ecsTaskExecutionRole"
+  name = "${var.project_name}-ecs-task-execution-role-${var.environment}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

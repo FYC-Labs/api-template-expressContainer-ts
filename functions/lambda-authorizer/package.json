@@ -1,0 +1,14 @@
+{
+    "name": "lambda-authorizer",
+    "description": "A template for creating an AWS Lambda authorizer",
+    "version": "0.0.1",
+    "license": "UNLICENSED",
+    "private": true,
+    "main": "src/index.ts",
+    "engines": {
+      "node": "20"
+    },    
+    "scripts": {
+        "zip": "zip -r authorizer.zip ."
+    }
+}

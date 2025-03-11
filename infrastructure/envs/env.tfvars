@@ -1,5 +1,15 @@
-project_name = "project"
+project_name = ""
 aws_region = "us-east-1"
-aws_profile = "default"
-aws_account_id = ""
-aws_vpc_cidr = "
+
+# Use access key
+use_profile           = false
+aws_access_key_id     = ""
+aws_secret_access_key = ""
+project_name          = ""
+
+# Use profile
+# profile               = ""
+# use_profile           = true
+
+# Use role
+# role_arn              = ""
