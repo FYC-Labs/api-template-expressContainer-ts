@@ -34,23 +34,6 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     environment:
-      # General
-      - APP_URL=http://localhost:3333
-      - APP_PORT=3333
-      - NODE_ENV=production
-      - DEFAULT_LANGUAGE=en
-      - TZ=UTC
-      # Cors
-      - CORS_ALLOWED_FROM=*
-      # Database
-      - DATABASE_URL=postgresql://postgres:docker@fyc_boilerplate_backend_postgres_prod:5432/fyc?schema=public
-      - DATABASE_LOGGER_ENABLED=false
-      # Redis
-      - REDIS_HOST=fyc_boilerplate_backend_redis_prod
-      - REDIS_PORT=6379
-      - REDIS_USER=
-      - REDIS_PASS=
-      - REDIS_DB=0
     ports:
       - 3333:3333
     command: ./wait-for.sh fyc_boilerplate_backend_postgres_prod:5432 -s -- ./wait-for.sh fyc_boilerplate_backend_redis_prod:6379 -s -- bash -c "npx prisma generate && npx prisma migrate deploy && node ./src/system/infra/http/server.js"
