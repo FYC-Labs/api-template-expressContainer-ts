@@ -1,5 +1,5 @@
 {
   "projects": {
-    "default": "swift-tax-app"
+    "default": "{{project-id}}"
   }
 }
