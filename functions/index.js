@@ -88,5 +88,5 @@ exports.authorizer_dev = functions.https.onRequest(
     secrets: ['BACKEND_URL', 'AUTH_HASH_SECRET'],
     // cors: [],
   },
-  authorizeAndForwardRequest('http://localhost:3001'),
+  authorizeAndForwardRequest('http://localhost:3000'),
 );
