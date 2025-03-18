@@ -8,9 +8,6 @@
         "firebase-debug.log",
         "firebase-debug.*.log",
         "*.local"
-      ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint"
       ]
     }
   ],
@@ -18,7 +15,11 @@
     "rewrites": [
       {
         "source": "/api/**",
-        "function": "auth"
+        "function": "authorizer"
+      },
+      {
+        "source": "/api_qa/**",
+        "function": "authorizer_qa"
       }
     ]
   },
