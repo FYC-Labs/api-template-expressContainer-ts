@@ -29,7 +29,7 @@ const PrismaDatabaseProvider = new PrismaClient({
 });
 
 if (logEnabled) {
-  PrismaDatabaseProvider.$on('query', (e) => {
+  PrismaDatabaseProvider.$on('query', (e: any) => {
     console.log(`Query: ${e.query}`);
     console.log(`Params: ${e.params}`);
     console.log(`Duration: ${e.duration}ms`);

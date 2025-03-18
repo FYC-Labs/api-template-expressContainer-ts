@@ -1,7 +1,11 @@
-.dockerignore
 node_modules
 npm-debug.log
 yarn-error.log
 Dockerfile
+Dockerfile.local
+Dockerfile.prod
+docker-compose.prod.yml
+docker-compose.local.yml
 .git
 .gitignore
+dist
