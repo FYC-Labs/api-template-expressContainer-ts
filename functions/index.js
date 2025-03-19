@@ -1,62 +1,92 @@
-/* eslint-disable global-require */
-/* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { onRequest } = require('firebase-functions/v2/https');
-const fetch = require('node-fetch');
+require('dotenv').config();
+const firebase = require('firebase-admin');
+const functions = require('firebase-functions/v2');
+const axios = require('axios');
 
-exports.auth = onRequest(
-  {
-    region: 'us-central1',
-    vpcConnector: 'cloud-functions-connector',
-    egressSettings: 'ALL_TRAFFIC',
-    vpcConnectorEgressSettings: 'ALL_TRAFFIC',
+const forwarder = axios.create({
+  validateStatus() {
+    return true;
   },
-  async (req, res) => {
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+});
 
-    if (req.method === 'OPTIONS') {
-      return res.status(204).send('');
-    }
+firebase.initializeApp({
+  credential: firebase.credential.cert(JSON.parse(process.env.FUNCTIONS_SERVICE_ACCOUNT || '{}')),
+});
 
+const serverlessAuthorizer = require('./serverless-authorizer/core');
+
+const authorizeAndForwardRequest = (baseUrl) => {
+  return async (req, res) => {
     try {
-      // Determine the target base URL
-      const baseUrl = process.env.TARGET_URL;
-      const entryPath = process.env.ENTRY_PATH;
-
-      if (!baseUrl) {
-        throw new Error('Target URL is not configured');
+      const { path } = req;
+      if (path === '/_echo') {
+        return res.send({ message: 'OK' });
       }
 
-      // Construct the full URL (preserve path and query params, but remove the entry path)
-      const fullUrl = `${baseUrl}${req.originalUrl.replace(entryPath, '')}`;
+      const { method } = req;
+      const headers = { ...req.headers };
 
-      // // Proxy the request to the target URL
-      const response = await fetch(fullUrl, {
-        method: req.method,
-        headers: {
-          ...req.headers,
-          host: new URL(baseUrl).host, // Ensure correct host header
-        },
-        body:
-          req.method !== 'GET' && req.method !== 'HEAD'
-            ? JSON.stringify(req.body)
-            : undefined,
-      });
+      delete headers.forwarded;
+      delete headers['x-forwarded-for'];
+      delete headers['x-forwarded-proto'];
+      delete headers['x-cloud-trace-context'];
+      delete headers['x-client-data'];
+      delete headers.traceparent;
+      delete headers.host;
 
-      // Determine response content type
-      const contentType = response.headers.get('content-type');
+      const authorizationResult = await serverlessAuthorizer({ path, method, headers });
+      if (authorizationResult.isAuthorized) {
+        const backendUrl = `${baseUrl}${req.url}`;
+        let response;
+        if (method === 'GET' || method === 'DELETE') {
+          response = await forwarder[method.toLowerCase()](backendUrl, { headers });
+        } else {
+          response = await forwarder[method.toLowerCase()](backendUrl, req.rawBody, { headers });
+        }
 
-      let responseData;
-      if (contentType && contentType.includes('application/json')) {
-        responseData = await response.json();
-        res.status(response.status).json(responseData);
-      } else {
-        responseData = await response.text();
-        res.status(response.status).send(responseData);
+        return res.status(response.status).send(response.data);
       }
+      return res.status(401).send({ message: authorizationResult.message });
     } catch (error) {
-      res.status(500).json({ authorized: false, error: error.message });
+      console.error(error);
+      return res.status(500).send({ message: error.message });
     }
+  };
+}
+
+// upon first deployment
+// manually create a revision
+// and set the authorizer to the default vpc
+// and to the default subnet
+// firebase functions does not support
+// direct egress at the moment
+// which is what allows us to save money
+// by not using a vpc-connector
+
+exports.authorizer = functions.https.onRequest(
+  {
+    memory: '2GiB',
+    secrets: ['BACKEND_URL', 'AUTH_HASH_SECRET'],
+    // cors: [],
   },
+  authorizeAndForwardRequest(process.env.BACKEND_URL),
+);
+
+exports.authorizer_qa = functions.https.onRequest(
+  {
+    memory: '512MiB',
+    secrets: ['BACKEND_URL_QA', 'AUTH_HASH_SECRET_QA'],
+    // cors: [],
+  },
+  authorizeAndForwardRequest(process.env.BACKEND_URL_QA),
+);
+
+exports.authorizer_dev = functions.https.onRequest(
+  {
+    memory: '2GiB',
+    secrets: ['BACKEND_URL', 'AUTH_HASH_SECRET'],
+    // cors: [],
+  },
+  authorizeAndForwardRequest('http://localhost:3000'),
 );

@@ -1,0 +1,6 @@
+aws/node_modules
+aws/_build
+.env
+node_modules
+*.log
+gcp/core

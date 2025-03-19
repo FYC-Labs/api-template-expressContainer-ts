@@ -1,21 +1,33 @@
-version: '3'
+version: '3.4'
 services:
   postgres:
     image: postgres
-    container_name: postgres-local
+    container_name: ${PROJECT_ID}-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: projectdb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${PROJECT_ID}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   server:
     build:
       context: .
-    container_name: server-container
+      dockerfile: Dockerfile.dev
+    image: ${PROJECT_ID}-server:latest
+    container_name: ${PROJECT_ID}-server
     environment:
-      DATABASE_URL: postgresql://postgres:password@postgres-local:5432/projectdb?schema=public
-      APP_PORT: 3001
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: ${APP_PORT}
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+      - "9229:9229"
     depends_on:
       - postgres
+    volumes:
+      - .:/usr/app
+
+volumes:
+  postgres_data:

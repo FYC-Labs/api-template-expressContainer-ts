@@ -17,10 +17,10 @@ import { App } from './app';
 const app = new App().server;
 
 // Start listen
-Bootstrap.then(() => app.listen(process.env.APP_PORT, () => {
+Bootstrap.then(() => app.listen(process.env.PORT, () => {
   console.log(
     `using Node.js ${semver.clean(process.version)} running at port ${
-      process.env.APP_PORT
+      process.env.PORT
     }.`,
   );
 }));
