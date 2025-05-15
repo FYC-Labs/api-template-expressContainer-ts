@@ -83,7 +83,7 @@ Automated deployments need a service account with the following permissions:
 
 The container image is stored in GCP's artifact registry in a repository named `api`. Should this repository not exist, it can be created as follows:
 
-```console
+```bash
 gcloud artifacts repositories create api --repository-format=docker --location="us-central1"
 ```
 Choose the same region where the api is or will be deployed.
@@ -92,7 +92,7 @@ Choose the same region where the api is or will be deployed.
 
 Manual deployments can be done as follows for the qa environment:
 
-```console
+```bash
 gcloud auth login
 gcloud config set project {{project_id}}
 gcloud auth configure-docker us-central1-docker.pkg.dev
