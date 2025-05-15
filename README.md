@@ -72,24 +72,45 @@ Code coverage will be generated on \_\_tests\_\_ page
 
 Run this application on docker-compose and access it from localhost:3333
 
-## 🚀 Deployment <a name = "deployment"></a>
+## 🚀 Deployments <a name = "deployments"></a>
 
-This application is ready for Docker and docker-compose deployment.
+### Automated deployments
 
-To backend deployment on a Virtual Machine, make a clone of this repository on the target, select the desired branch, and, after completing the requirements, run the following commands:
+Automated deployments need a service account with the following permissions:
+- Artifact Registry Writer
+- Cloud Run Admin
+- Service Account User.
 
-```bash
-COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose --env-file .env.ci -f docker-compose.prod.yml build
+The container image is stored in GCP's artifact registry in a repository named `api`. Should this repository not exist, it can be created as follows:
 
+```console
+gcloud artifacts repositories create api --repository-format=docker --location="us-central1"
+```
+Choose the same region where the api is or will be deployed.
+
+### Manual deployments
+
+Manual deployments can be done as follows for the qa environment:
+
+```console
+gcloud auth login
+gcloud config set project {{project_id}}
+gcloud auth configure-docker us-central1-docker.pkg.dev
+
+docker build -f Dockerfile.prod -t us-central1-docker.pkg.dev/{{project_id}}/api/api-qa:latest .
+docker push us-central1-docker.pkg.dev/{{project_id}}/api/api-qa:latest
+
+gcloud run deploy api-qa \
+  --image us-central1-docker.pkg.dev/{{project_id}}/api/api-qa:latest \
+  --platform managed \
+  --region $REGION \
+  --allow-unauthenticated \
+  --ingress internal \
+  --network default \
+  --subnet default
 ```
 
-Once the application was built, copy the ```docker-compose.prod.yml``` file to ```docker-compose.yml``` with your environment variables and run the following command:
-
-```bash
-docker-compose --env-file .env.ci -f docker-compose.prod.yml up -d
-```
-
-Make sure that your Firewalls, Load Balancers and your DNS is well configured. The backend application will be provided at port 3333 by default.
+Production deployments work the same way, but the service name is `api-main`. The region can be changed to the desired one.
 
 ## ⛏️ Built Using <a name = "built_using"></a>
 
