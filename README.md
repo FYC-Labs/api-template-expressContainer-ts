@@ -103,7 +103,7 @@ docker push us-central1-docker.pkg.dev/{{project_id}}/api/api-qa:latest
 gcloud run deploy api-qa \
   --image us-central1-docker.pkg.dev/{{project_id}}/api/api-qa:latest \
   --platform managed \
-  --region $REGION \
+  --region us-central1 \
   --allow-unauthenticated \
   --ingress internal \
   --network default \
