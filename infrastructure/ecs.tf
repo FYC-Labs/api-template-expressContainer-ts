@@ -1,29 +1,59 @@
 resource "aws_ecs_cluster" "project_ecs_cluster" {
   name = "${var.project_name}-${var.environment}-cluster"
+
+  tags = {
+    Name = "${var.project_name}-ecs-cluster"
+  }
 }
+
 resource "aws_cloudwatch_log_group" "project_ecs_logs" {
   name = "/ecs/${var.project_name}-${var.environment}"
+  retention_in_days = 30
+
+  tags = {
+    Name = "${var.project_name}-ecs-logs"
+  }
 }
 
 resource "aws_ecr_repository" "project_ecr" {
   name = "${var.environment}_ecr"
   image_tag_mutability = "MUTABLE"
+
+  tags = {
+    Name = "${var.project_name}-ecr"
+  }
 }
 
 resource "aws_security_group" "ecs_sg" {
   vpc_id = aws_vpc.project_vpc.id
-  name   = "ecs-nlb-security-group"
+  name   = "${var.project_name}-ecs-sg"
 
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
+    security_groups = [aws_security_group.nlb_sg.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  tags = {
+    Name = "${var.project_name}-ecs-sg"
+  }
+}
+
+resource "aws_security_group" "nlb_sg" {
+  vpc_id = aws_vpc.project_vpc.id
+  name   = "${var.project_name}-nlb-sg"
+
   ingress {
-    from_port   = 443
-    to_port     = 443
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -34,22 +64,41 @@ resource "aws_security_group" "ecs_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "${var.project_name}-nlb-sg"
+  }
 }
 
 resource "aws_lb" "nlb" {
   name               = "${var.project_name}-nlb"
   internal           = true
   load_balancer_type = "network"
-  security_groups    = [aws_security_group.ecs_sg.id]
-  subnets           = [aws_subnet.project_subnet_1.id, aws_subnet.project_subnet_2.id]
+  subnets           = [aws_subnet.private_subnet_1.id, aws_subnet.private_subnet_2.id]
+
+  tags = {
+    Name = "${var.project_name}-nlb"
+  }
 }
 
 resource "aws_lb_target_group" "ecs_tg" {
-  name        = "ecs-target-group"
+  name        = "${var.project_name}-tg"
   port        = 80
   protocol    = "TCP"
   vpc_id      = aws_vpc.project_vpc.id
   target_type = "ip"
+
+  health_check {
+    protocol            = "TCP"
+    port                = "traffic-port"
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    interval            = 30
+  }
+
+  tags = {
+    Name = "${var.project_name}-tg"
+  }
 }
 
 resource "aws_lb_listener" "ecs_listener" {
@@ -84,15 +133,28 @@ resource "aws_ecs_task_definition" "project_task" {
           containerPort = 80
           hostPort      = 80
           protocol      = "tcp"
-        },
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.project_ecs_logs.name
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
+      environment = [
         {
-          containerPort = 443
-          hostPort      = 443
-          protocol      = "tcp"
+          name  = "DATABASE_URL"
+          value = "postgresql://${aws_db_instance.postgres.username}:${aws_db_instance.postgres.password}@${aws_db_instance.postgres.endpoint}/${aws_db_instance.postgres.db_name}"
         }
       ]
     }
   ])
+
+  tags = {
+    Name = "${var.project_name}-task-definition"
+  }
 }
 
 resource "aws_ecs_service" "my_service" {
@@ -103,7 +165,7 @@ resource "aws_ecs_service" "my_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [aws_subnet.project_subnet_1.id, aws_subnet.project_subnet_2.id]
+    subnets          = [aws_subnet.private_subnet_1.id, aws_subnet.private_subnet_2.id]
     security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = false
   }
@@ -112,6 +174,12 @@ resource "aws_ecs_service" "my_service" {
     target_group_arn = aws_lb_target_group.ecs_tg.arn
     container_name   = "${var.project_name}-container"
     container_port   = 80
+  }
+
+  depends_on = [aws_lb_listener.ecs_listener]
+
+  tags = {
+    Name = "${var.project_name}-ecs-service"
   }
 }
 
@@ -130,6 +198,10 @@ resource "aws_iam_role" "ecs_task_execution_role" {
       }
     ]
   })
+
+  tags = {
+    Name = "${var.project_name}-ecs-task-role"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
