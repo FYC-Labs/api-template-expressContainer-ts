@@ -11,7 +11,7 @@ const forwarder = axios.create({
 });
 
 firebase.initializeApp({
-  credential: firebase.credential.cert(JSON.parse(process.env.FUNCTIONS_SERVICE_ACCOUNT || '{}')),
+  credential: firebase.credential.cert(JSON.parse(Buffer.from(process.env.GCP_SERVICE_ACCOUNT, 'base64').toString() || '{}')),
 });
 
 const serverlessAuthorizer = require('./serverless-authorizer/core');
