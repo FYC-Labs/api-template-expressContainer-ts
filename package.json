@@ -12,6 +12,7 @@
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf yarn.lock && yarn install",
     "lint": "eslint 'src/**/*.{ts,tsx}' --fix && tsc --noEmit",
     "test": "jest",
+    "build": "tsc && cp ./tsconfig.json ./dist/",
     "dev": "npx prisma generate && ts-node-dev --inspect --transpile-only --exit-child --ignore-watch node_modules -r tsconfig-paths/register src/system/infra/http/server.ts"
   },
   "lint-staged": {
@@ -29,7 +30,6 @@
     "firebase": "^10.11.0",
     "firebase-admin": "^12.1.0",
     "helmet": "^5.1.1",
-    "semver": "^7.3.7",
     "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
