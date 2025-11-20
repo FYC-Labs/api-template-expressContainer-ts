@@ -1,16 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "lib": [
-      "es2020"
-    ],
-    "allowJs": false,
+    "target": "ES2022",
+    "module": "NodeNext",
+    "allowJs": true,
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
-    "resolveJsonModule": true,
-    "strictPropertyInitialization": false,
     "baseUrl": "./src",
     "paths": {
       "@config/*": ["config/*"],
@@ -26,8 +21,6 @@
       "@utils/*": ["utils/*"]
     },
     "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
