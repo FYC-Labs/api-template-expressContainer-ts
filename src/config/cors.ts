@@ -2,4 +2,4 @@ const corsConfig = {
   origin: '*',
 };
 
-export { corsConfig };
+export default corsConfig;

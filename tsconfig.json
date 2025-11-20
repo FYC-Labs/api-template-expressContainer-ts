@@ -16,7 +16,6 @@
       "@libs/*": ["libs/*"],
       "@routes/*": ["routes/*"],
       "@services/*": ["services/*"],
-      "@system/*": ["system/*"],
       "@customTypes/*": ["types/*"],
       "@utils/*": ["utils/*"]
     },
