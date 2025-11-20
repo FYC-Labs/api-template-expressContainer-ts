@@ -1,0 +1,415 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions", "views"]
+}
+
+model Organization {
+  id               Int                @id @default(autoincrement())
+  uuid             String             @unique @default(uuid()) @db.Uuid
+  name             String
+  industry         String
+  filingFrequency  FilingFrequency    @default(MONTHLY)
+  address          String             @default("")
+  city             String             @default("")
+  state            String             @default("")
+  zipCode          String             @default("")
+  country          String?            @default("USA")
+  accountId        Int
+  phone            String             @default("")
+  email            String             @default("")
+  contactFirstName String             @default("")
+  contactLastName  String             @default("")
+  positionTitle    String             @default("")
+  account          Account            @relation(fields: [accountId], references: [id])
+  locations        Location[]
+  taxFilings       TaxFiling[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  archived         Boolean            @default(false)
+  bankAccounts     BankAccount[]
+  r365Credentials  R365Credentials[]
+  toastCredentials ToastCredentials[]
+
+  @@index([accountId])
+  @@index([name])
+  @@index([industry])
+  @@index([state])
+}
+
+model TaxFiling {
+  id                         Int                     @id @default(autoincrement())
+  uuid                       String                  @unique @default(uuid()) @db.Uuid
+  locationId                 Int
+  location                   Location                @relation(fields: [locationId], references: [id])
+  locationLatest             Location?               @relation("LatestTaxFiling")
+  organization               Organization            @relation(fields: [organizationId], references: [id])
+  organizationId             Int
+  filingPeriodYear           Int
+  filingPeriodMonth          Int
+  filingPeriodQuarter        Int?
+  amount                     Float
+  filedAt                    DateTime?
+  pdfUrl                     String                  @default("")
+  plaidTransferId            String                  @default("")
+  transferredAt              DateTime?
+  jurisdiction               String
+  posDiscounts               Float                   @default(0)
+  wholesale                  Float                   @default(0)
+  taxExempt                  Float                   @default(0)
+  foodCogs                   Float                   @default(0)
+  nonTaxable                 Float                   @default(0)
+  refunds                    Float                   @default(0)
+  complimentary              Float                   @default(0)
+  salesTaxCollected          Float                   @default(0)
+  wholesaleSalesTaxCollected Float                   @default(0)
+  mandatoryServiceCharges    Float                   @default(0)
+  status                     FilingStatus
+  attachments                Json?
+  automated                  Boolean                 @default(false)
+  archived                   Boolean                 @default(false)
+  pulls                      TaxPull[]
+  bundleTransfers            TaxPullBundleTransfer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([locationId])
+  @@index([organizationId])
+  @@index([filingPeriodYear])
+  @@index([filingPeriodMonth])
+  @@index([filingPeriodQuarter])
+  @@index([status])
+  @@index([filedAt])
+}
+
+model TaxPull {
+  id                 Int                            @id @default(autoincrement())
+  uuid               String                         @unique @default(uuid()) @db.Uuid
+  externalPlatformId String
+  platform           SalePlatform
+  amount             Float
+  data               Json
+  taxFilingId        Int
+  taxFiling          TaxFiling                      @relation(fields: [taxFilingId], references: [id])
+  transferPairings   TaxPullBundleTransferPairing[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([externalPlatformId, platform])
+}
+
+model TaxPullBundleTransfer {
+  id               Int                            @id @default(autoincrement())
+  uuid             String                         @unique @default(uuid()) @db.Uuid
+  amount           Float
+  status           TaxPullBundleTransferStatus    @default(STAGED)
+  transferredAt    DateTime?
+  failedAt         DateTime?
+  taxFilingId      Int
+  taxFiling        TaxFiling                      @relation(fields: [taxFilingId], references: [id])
+  transferPairings TaxPullBundleTransferPairing[]
+  transaction      Transaction?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TaxPullBundleTransferPairing {
+  id               Int                   @id @default(autoincrement())
+  uuid             String                @unique @default(uuid()) @db.Uuid
+  taxPullId        Int
+  taxPull          TaxPull               @relation(fields: [taxPullId], references: [id])
+  bundleTransferId Int
+  bundleTransfer   TaxPullBundleTransfer @relation(fields: [bundleTransferId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([taxPullId, bundleTransferId])
+}
+
+model TeamInvite {
+  id          Int             @id @default(autoincrement())
+  uuid        String          @unique @default(uuid()) @db.Uuid
+  accountId   Int
+  email       String
+  role        UserAccountRole
+  invitedById String
+  inviteCode  String          @unique
+  status      String          @default("Pending")
+  archived    Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  account     Account         @relation(fields: [accountId], references: [id])
+  invitedBy   User            @relation(fields: [invitedById], references: [id])
+
+  @@index([email])
+  @@index([invitedById])
+  @@index([status])
+}
+
+model User {
+  id            String        @id
+  uuid          String        @unique @default(uuid()) @db.Uuid
+  email         String        @unique
+  name          String
+  firstName     String        @default("")
+  lastName      String        @default("")
+  phone         String        @default("")
+  positionTitle String        @default("")
+  archived      Boolean       @default(false)
+  archivedAt    DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now()) @updatedAt
+  userAccounts  UserAccount[]
+  sentInvites   TeamInvite[]
+
+  @@index([name])
+  @@index([firstName, lastName])
+}
+
+model UserAccount {
+  id        Int                 @id @default(autoincrement())
+  uuid      String              @unique @default(uuid()) @db.Uuid
+  userId    String
+  accountId Int
+  role      UserAccountRole
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @default(now()) @updatedAt
+  user      User                @relation(fields: [userId], references: [id])
+  account   Account             @relation(fields: [accountId], references: [id])
+  groups    UserAccountGroups[]
+
+  @@unique([userId, accountId])
+  @@index([userId])
+  @@index([accountId])
+}
+
+model UserGroups {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique @default(uuid()) @db.Uuid
+  name              String
+  accountId         Int
+  account           Account             @relation(fields: [accountId], references: [id])
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  UserAccountGroups UserAccountGroups[]
+
+  @@index([name])
+  @@index([accountId])
+}
+
+model UserAccountGroups {
+  id            Int         @id @default(autoincrement())
+  uuid          String      @unique @default(uuid()) @db.Uuid
+  userAccountId Int
+  userGroupId   Int
+  userAccount   UserAccount @relation(fields: [userAccountId], references: [id])
+  userGroup     UserGroups  @relation(fields: [userGroupId], references: [id])
+
+  @@index([userAccountId])
+  @@index([userGroupId])
+}
+
+model Transaction {
+  id                    Int               @id @default(autoincrement())
+  uuid                  String            @unique @default(uuid()) @db.Uuid
+  status                TransactionStatus @default(INIT)
+  amount                Float
+  accruPayId            String            @default("")
+  provider              String
+  providerTransactionId String            @default("")
+  token                 String
+  expiresAt             DateTime
+  verifiedAt            DateTime?
+  verifiedTransactionId String            @default("")
+  internalNotes         String            @default("")
+  balance               Float             @default(0)
+  paidAt                DateTime?
+  invoice               Invoice?
+
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  paymentMethodId         Int?
+  paymentMethod           PaymentMethod?         @relation(fields: [paymentMethodId], references: [id])
+  taxPullBundleTransferId Int?                   @unique
+  taxPullBundleTransfer   TaxPullBundleTransfer? @relation(fields: [taxPullBundleTransferId], references: [id])
+
+  @@index([accruPayId])
+}
+
+model PaymentMethod {
+  id           Int     @id @default(autoincrement())
+  uuid         String  @unique @default(uuid()) @db.Uuid
+  accruPayId   String
+  accountId    Int
+  account      Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  maskedNumber String
+  brand        String
+  archived     Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  locations    Location[]
+  transactions Transaction[]
+
+  @@index([accruPayId])
+}
+
+model Subscription {
+  id            Int       @id @default(autoincrement())
+  uuid          String    @unique @default(uuid()) @db.Uuid
+  accountId     Int       @unique
+  account       Account   @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  activeAccount Account?  @relation("activeSubscription")
+  startedAt     DateTime
+  endedAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Invoice {
+  id                Int               @id @default(autoincrement())
+  uuid              String            @unique @default(uuid()) @db.Uuid
+  amount            Int
+  filingPeriodYear  Int
+  filingPeriodMonth Int
+  date              DateTime          @db.Date
+  dueDate           DateTime          @db.Date
+  status            InvoiceStatus
+  invoiceLocations  InvoiceLocation[]
+  pdfUrl            String            @default("")
+  transactionId     Int               @unique
+  transaction       Transaction       @relation(fields: [transactionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InvoiceLocation {
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique @default(uuid()) @db.Uuid
+  invoiceId  Int
+  invoice    Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  locationId Int
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  amount     Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BankAccount {
+  id               Int          @id @default(autoincrement())
+  uuid             String       @unique @default(uuid()) @db.Uuid
+  organizationId   Int
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  plaidAccessToken String
+  plaidItemId      String
+  plaidAccountId   String
+
+  lastFour String
+  name     String
+  type     String
+
+  status     String    @default("ACTIVE")
+  archived   Boolean   @default(false)
+  archivedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  locations Location[]
+
+  @@unique([plaidAccountId, organizationId])
+  @@index([organizationId, archived])
+}
+
+model R365Credentials {
+  id             Int          @id @default(autoincrement())
+  uuid           String       @unique @default(uuid()) @db.Uuid
+  username       String
+  password       String
+  databaseName   String
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId])
+  @@index([organizationId])
+}
+
+model ToastCredentials {
+  id             Int          @id @default(autoincrement())
+  uuid           String       @unique @default(uuid()) @db.Uuid
+  clientId       String
+  clientSecret   String
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now()) @updatedAt
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId])
+  @@index([organizationId])
+}
+
+enum LocationStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+}
+
+enum FilingStatus {
+  IN_PROCESS
+  READY_FOR_REVIEW
+  READY_TO_SUBMIT
+  SUBMITTED
+  TRANSFERRED
+  FILED
+  ACTION_REQUIRED
+  PAST_DUE
+}
+
+enum UserAccountRole {
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+enum FilingFrequency {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum TransactionStatus {
+  INIT
+  VERIFIED
+  PAID
+}
+
+enum SalePlatform {
+  R365
+  TOAST
+}
+
+enum TaxPullBundleTransferStatus {
+  STAGED
+  TRANSFERRED
+  FAILED
+}
+
