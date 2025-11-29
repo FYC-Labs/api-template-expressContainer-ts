@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.0.1",
   "engineVersion": "f09f2815f091dbba658cdcd2264306d88bb5bda6",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../prisma/generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id          Int      @id @default(autoincrement())\n  uuid        String   @unique @default(uuid()) @db.Uuid\n  email       String   @unique\n  firebaseUid String   @unique\n  firstName   String   @default(\"\")\n  lastName    String   @default(\"\")\n  phone       String   @default(\"\")\n  active      Boolean  @default(true)\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @default(now()) @updatedAt\n}\n",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/lib/prisma/generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id          Int      @id @default(autoincrement())\n  uuid        String   @unique @default(uuid()) @db.Uuid\n  email       String   @unique\n  firebaseUid String   @unique\n  firstName   String   @default(\"\")\n  lastName    String   @default(\"\")\n  phone       String   @default(\"\")\n  active      Boolean  @default(true)\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @default(now()) @updatedAt\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},

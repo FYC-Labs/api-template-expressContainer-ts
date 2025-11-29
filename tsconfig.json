@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "module": "CommonJS",
+    "module": "commonjs",
     "moduleResolution": "node",
     "allowJs": true,
     "outDir": "./dist",
@@ -13,6 +13,6 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["node"],
   },
-  "include": ["src/**/*", "prisma/generated/client"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "src/scripts"]
 }
