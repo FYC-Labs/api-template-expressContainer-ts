@@ -1,28 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
+    "target": "ES2023",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "allowJs": true,
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
     "baseUrl": "./src",
-    "paths": {
-      "@config/*": ["config/*"],
-      "@consts/*": ["consts/*"],
-      "@db/*": ["db/*"],
-      "@enums/*": ["enums/*"],
-      "@helpers/*": ["helpers/*"],
-      "@libs/*": ["libs/*"],
-      "@routes/*": ["routes/*"],
-      "@services/*": ["services/*"],
-      "@customTypes/*": ["types/*"],
-      "@utils/*": ["utils/*"]
-    },
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"],
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "prisma/generated/client"],
   "exclude": ["node_modules", "dist", "src/scripts"]
 }
