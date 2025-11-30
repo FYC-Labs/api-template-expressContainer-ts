@@ -17,10 +17,9 @@ FROM node:22.21.1-alpine3.22 AS production
 
 WORKDIR /usr/app
 
-COPY --from=build /usr/app/package.json /usr/app/yarn.lock /usr/app/tsconfig.json /usr/app/wait-for.sh ./
-COPY --from=build /usr/app/prisma ./prisma
+COPY --from=build /usr/app/package.json /usr/app/yarn.lock /usr/app/tsconfig.json ./
 COPY --from=build /usr/app/dist ./dist
 
 RUN yarn install --frozen-lockfile --production
 
-CMD yarn prisma generate && yarn prisma db push && TS_NODE_BASEURL=./dist node -r tsconfig-paths/register ./dist/system/infra/http/server.js
+CMD yarn prisma db push && yarn start

@@ -3,8 +3,8 @@ import * as UserService from '../services/user.service';
 
 const router = Router();
 
-router.post('/signup', async (_, res) => {
-  const user = await UserService.create();
+router.get('/me', async (req, res) => {
+  const user = await UserService.findByEmail(req.user!);
 
   res.json({
     data: {
