@@ -1,6 +1,5 @@
 import admin from "firebase-admin";
-import crypto from 'crypto';
-import { ENV } from "config";
+import { ENV } from "../config";
 
 const { APP_ENV, GCP_TENANT_ID, FIREBASE_SERVICE_ACCOUNT } = ENV;
 if (!FIREBASE_SERVICE_ACCOUNT) {

@@ -26,8 +26,8 @@ model User {
 model Post {
   id            Int           @id @default(autoincrement())
   uuid          String        @unique @default(uuid()) @db.Uuid
-  title         String        @default("")
-  content       String        @default("")
+  title         String
+  description   String
   authorId      Int
   author        User          @relation(fields: [authorId], references: [id])
   createdAt     DateTime      @default(now())

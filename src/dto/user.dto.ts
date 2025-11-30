@@ -1,6 +1,10 @@
 import { User } from "../generated/prisma/client";
 
 export function renderCurrentUser(user: User) {
+  return renderOne(user);
+}
+
+export function renderOne(user: User) {
   return {
     id: user.uuid,
     email: user.email,

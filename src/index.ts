@@ -4,6 +4,7 @@ import express from 'express';
 import helmet from 'helmet';
 import routes from './routes';
 import { CORS_CONFIG } from './config';
+import { errorHandler } from './routes/middlewares';
 
 const app = express();
 
@@ -12,6 +13,8 @@ app.use(cors(CORS_CONFIG));
 app.use(express.json());
 
 app.use(routes);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
