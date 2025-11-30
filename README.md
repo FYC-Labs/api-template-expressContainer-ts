@@ -17,3 +17,7 @@ yarn prisma generate && yarn prisma db push
 ```console
 yarn dev
 ```
+
+### TODO
+1. Setup unit tests
+2. Review github actions deployment
