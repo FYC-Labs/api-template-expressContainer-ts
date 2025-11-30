@@ -9,11 +9,11 @@ yarn install
 ```
 
 ## Generate prisma client and push to db
-```
+```console
 yarn prisma generate && yarn prisma db push
 ```
 
 ## Run project
-```
+```console
 yarn dev
 ```
