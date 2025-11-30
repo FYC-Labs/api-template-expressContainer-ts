@@ -4,13 +4,14 @@ import express from 'express';
 import helmet from 'helmet';
 import routes from './routes';
 import { CORS_CONFIG } from './config';
-import { errorHandler } from './routes/middlewares';
+import { setRequestId, errorHandler } from './routes/middlewares';
 
 const app = express();
 
 app.use(helmet());
 app.use(cors(CORS_CONFIG));
 app.use(express.json());
+app.use(setRequestId);
 
 app.use(routes);
 

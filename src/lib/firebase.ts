@@ -1,5 +1,6 @@
 import admin from "firebase-admin";
 import { ENV } from "../config";
+import crypto from 'crypto';
 
 const { APP_ENV, GCP_TENANT_ID, FIREBASE_SERVICE_ACCOUNT } = ENV;
 if (!FIREBASE_SERVICE_ACCOUNT) {
@@ -79,17 +80,32 @@ export async function generateMagicLink(email: string, url: string) {
   return magicLink;
 }
 
-const bucket = admin.storage(app).bucket();
+const bucket = admin.storage(app).bucket("bucket-name");
 
-function appendUuidToFilename(filename: string) {
-  const parts = filename.split(".");
-  const reversedParts = [...parts].reverse();
+function appendUuidToFilename(filename: string): string {
+  const match = filename.match(/\.([^.\\/:*?"<>|\r\n]+)$/);
 
-  return
+  let base: string;
+  let ext: string;
+
+  if (match) {
+    ext = match[1];
+    base = filename.slice(0, match.index);
+  } else {
+    ext = '';
+    base = filename;
+  }
+
+  if (!ext) {
+    throw new Error("Filename must have an extension");
+  }
+
+  const uniqueId = crypto.randomUUID();
+  return `${base}_${uniqueId}.${ext}`;
 }
 
 export async function saveFileToFirebase(filename: string, buffer: Buffer, contentType: string) {
-  const filepath = `${APP_ENV}/uploads/${filename}`;
+  const filepath = `${APP_ENV}/uploads/${appendUuidToFilename(filename)}`;
   const bucketFile = bucket.file(filepath);
 
   if (process.env.NODE_ENV !== "test") {

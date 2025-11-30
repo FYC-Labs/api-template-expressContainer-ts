@@ -3,7 +3,7 @@ import { User } from '../generated/prisma/client';
 import prisma from '../lib/prisma';
 import logger from '../lib/log';
 import { verifyIdToken } from '../lib/firebase';
-import { HTTPError, HTTPUnauthorizedError } from 'errors';
+import { HTTPError, HTTPUnauthorizedError } from '../errors';
 
 export const setRequestId: RequestHandler = (req, _, next) => {
   req.id = (req.headers?.['x-request-id'] as string) || crypto.randomUUID();
@@ -40,7 +40,7 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
   logger.error({
     requestId: req.id!,
-    userId: req.user?.uuid,
+    userId: req.user?.uuid || null,
     path: req.path,
     status,
     message

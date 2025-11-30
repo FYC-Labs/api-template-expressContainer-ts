@@ -1,4 +1,3 @@
-
 type LogParams = {
   requestId: string;
   userId: string;
@@ -11,7 +10,7 @@ type LogFn = (params: LogParams) => void;
 
 function createLogger() {
   const format = ({ requestId, userId, path, status = "", message = "" }: LogParams) =>
-    `req ${requestId} user ${userId} "${path}" ${status} ${message}`.trim();
+    `${path} ${requestId} user ${userId} ${status} ${message}`.trim();
 
   const wrap = (fn: (...args: any[]) => void): LogFn =>
     (params) => fn(format(params));
