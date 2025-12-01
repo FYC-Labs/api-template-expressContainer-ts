@@ -1,16 +1,11 @@
 node_modules
 build
-temp
+tmp
 coverage
 dist
 .env
 .runtime
-prisma
 .DS_Store
 
 !tmp/.gitkeep
-translation.missing.json
-
-infrastructure/.terraform.lock.hcl
-infrastructure/terraform.tstate.backup
-infrastructure/terraform.tstate.backup
+**/generated/
