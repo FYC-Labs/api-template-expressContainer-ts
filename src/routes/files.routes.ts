@@ -1,8 +1,8 @@
- 
+
 import {
   Router, Request, Response, NextFunction,
 } from 'express';
-import * as fileService from '../services/file.service';
+import * as fileService from '@src/services/file/file.service';
 
 const router = Router();
 

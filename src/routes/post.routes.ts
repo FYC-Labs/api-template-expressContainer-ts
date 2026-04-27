@@ -1,20 +1,21 @@
 import { Router } from 'express';
-import * as PostService from '../services/post.service';
-import * as PostDTO from '../dto/post.dto';
-import { requireUser } from './middlewares';
+import * as PostService from '@src/services/post/post.service';
+import { requireUser } from '@src/middlewares/auth.middleware';
 
 const router = Router();
 
-router.post('/me', requireUser, async (req, res) => {
-  const post = await PostService.create({
-    title: req.body.title,
-    description: req.body.description,
-    authorId: req.user.id,
-  });
+router.post('/', requireUser, async (req, res, next) => {
+  try {
+    const post = await PostService.create({
+      title: req.body.title,
+      description: req.body.description,
+      authorId: req.user.id,
+    });
 
-  res.json({
-    data: PostDTO.renderOne(post),
-  });
+    res.json({ data: post });
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router;

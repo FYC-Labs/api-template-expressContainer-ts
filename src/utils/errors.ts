@@ -30,6 +30,14 @@ export class HTTPForbiddenError extends HTTPError {
   }
 }
 
+export class HTTPBadRequestError extends HTTPError {
+  constructor(message?: string) {
+    super(message || "Bad Request");
+    this.name = "BadRequestError";
+    this.status = 400;
+  }
+}
+
 export class HTTPInternalServerError extends HTTPError {
   constructor(message?: string) {
     super(message || "Internal Server Error");

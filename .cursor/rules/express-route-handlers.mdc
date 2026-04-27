@@ -1,0 +1,24 @@
+---
+description: Express route handlers use try/catch and pass errors to next()
+globs: src/routes/**/*.ts
+alwaysApply: false
+---
+
+# Route-level error handling
+
+Use an explicit `try` / `catch` in every async route handler. In `catch`, call `next(error)` so the centralized error middleware can format the response.
+
+Do not rely on unhandled promise rejections from the async handler alone; keep the pattern consistent and obvious at the call site.
+
+```typescript
+router.get('/path', requireUser, async (req, res, next) => {
+  try {
+    const result = await SomeService.doThing(req.user.id);
+    res.json({ data: result });
+  } catch (error) {
+    next(error);
+  }
+});
+```
+
+Sync handlers that can throw should use the same shape if they delegate to code that throws.

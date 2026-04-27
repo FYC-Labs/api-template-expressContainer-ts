@@ -4,17 +4,15 @@ import express from 'express';
 
 import helmet from 'helmet';
 import routes from './routes';
-import { setRequestId, errorHandler } from './routes/middlewares';
+import { errorHandler } from './middlewares/error.middleware';
 
 const app = express();
 
-app.use(helmet());
 app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
+app.use(helmet());
 app.use(express.json());
-app.use(setRequestId);
 
 app.use(routes);
-
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;

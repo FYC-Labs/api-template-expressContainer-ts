@@ -1,16 +1,22 @@
 import { Router } from 'express';
-import * as UserService from '../services/user.service';
-import * as UserDTO from '../dto/user.dto';
-import { requireUser } from './middlewares';
+import * as userService from '@src/services/user/user.service';
+import { requireUser } from '@src/middlewares/auth.middleware';
+import { HTTPBadRequestError } from '@src/utils/errors';
 
 const router = Router();
 
-router.get('/me', requireUser, async (req, res) => {
-  const user = await UserService.findByEmail(req.user.email);
-
-  res.json({
-    data: UserDTO.renderCurrentUser(user),
-  });
+router.post('/', requireUser, async (req, res, next) => {
+  try {
+    if (!req.body.email) {
+      throw new HTTPBadRequestError('Email is required');
+    }
+    const user = await userService.create({
+      email: req.body.email,
+    });
+    res.json({ data: user });
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router;

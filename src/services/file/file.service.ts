@@ -1,4 +1,4 @@
-import { storage } from '../libs/firebase';
+import { storage } from '@src/lib/firebase';
 
 const bucket = storage().bucket(process.env.STORAGE_BUCKET);
 
@@ -50,5 +50,5 @@ export async function edit({
 
 export async function listFiles({ path }: { path: string }): Promise<string[]> {
   const [files] = await bucket.getFiles({ prefix: path });
-  return files.map((file) => file.name);
+  return files.map((file: { name: string }) => file.name);
 }

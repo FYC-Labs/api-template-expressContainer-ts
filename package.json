@@ -10,12 +10,13 @@
     "node": "22"
   },
   "scripts": {
+    "dev": "npx prisma generate && ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
+    "start": "node dist/index.js",
     "encode:service-account": "node scripts/encode-service-account.js",
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf yarn.lock && yarn install",
     "lint": "eslint 'src/**/*.{ts,js}' --fix && tsc --noEmit",
-    "build": "tsc",
-    "dev": "npx prisma generate && ts-node-dev --respawn --transpile-only src/index.ts",
-    "start": "node dist/index.js"
+    "build": "yarn test && tsc && tsc-alias",
+    "test": "jest --no-watchman"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [
@@ -36,7 +37,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
-    "@types/jest": "^29.5.12",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.13.14",
     "@types/pg": "^8.15.6",
     "@typescript-eslint/eslint-plugin": "^8.47.0",
@@ -47,8 +48,12 @@
     "faker": "^6.6.6",
     "globals": "^16.5.0",
     "husky": "^8.0.1",
+    "jest": "^30.3.0",
     "prisma": "^7.0.1",
+    "ts-jest": "^29.4.9",
     "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.2"
   }
 }

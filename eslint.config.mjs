@@ -66,4 +66,13 @@ export default [
       globals: globals.node
     }
   },
+  {
+    files: ["**/*.test.ts"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest
+      }
+    }
+  },
 ];

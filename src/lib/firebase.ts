@@ -3,9 +3,10 @@ import crypto from 'crypto';
 
 const APP_ENV = process.env.APP_ENV;
 const GCP_TENANT_ID = process.env.GCP_TENANT_ID;
-const FIREBASE_SERVICE_ACCOUNT = JSON.parse(
-  process.env.FIREBASE_SERVICE_ACCOUNT || "{}"
-);
+const rawServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT?.trim();
+const FIREBASE_SERVICE_ACCOUNT = rawServiceAccount
+  ? JSON.parse(Buffer.from(rawServiceAccount, "base64").toString("utf8"))
+  : JSON.parse("{}");
 if (!FIREBASE_SERVICE_ACCOUNT) {
   throw new Error("Cannot continue without a firebase service account");
 }
@@ -18,6 +19,10 @@ const app = admin.initializeApp({
   credential: admin.credential.cert(FIREBASE_SERVICE_ACCOUNT),
 });
 const auth = admin.auth(app);
+
+export function storage() {
+  return admin.storage(app);
+}
 
 function getTenantFirebaseAuth() {
   return auth.tenantManager().authForTenant(GCP_TENANT_ID as string);

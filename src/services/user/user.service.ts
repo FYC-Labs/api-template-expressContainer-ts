@@ -1,11 +1,11 @@
 import { User } from '@prisma/client';
-import prisma from '../../lib/prisma';
+import prisma from '@src/lib/prisma';
 
-export async function create() {
+export async function create({ email }: { email: User['email'] }) {
   return prisma.user.create({
     data: {
-      firebaseUid: new Date().getTime().toString(),
-      email: `user-${new Date().getTime()}@fyclabs.com`,
+      firebaseUid: crypto.randomUUID(),
+      email,
     }
   });
 }
