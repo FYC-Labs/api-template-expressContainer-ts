@@ -1,5 +1,5 @@
 # Build environment
-FROM node:20.19-alpine3.20 AS build
+FROM node:22.21.1-alpine3.22 AS build
 
 WORKDIR /usr/app
 
@@ -13,14 +13,13 @@ RUN yarn prisma generate
 RUN yarn build
 
 # Production environment
-FROM node:20.19-alpine3.20 AS production
+FROM node:22.21.1-alpine3.22 AS production
 
 WORKDIR /usr/app
 
-COPY --from=build /usr/app/package.json /usr/app/yarn.lock /usr/app/tsconfig.json  ./
-COPY --from=build /usr/app/prisma ./prisma
+COPY --from=build /usr/app/package.json /usr/app/yarn.lock /usr/app/tsconfig.json ./
 COPY --from=build /usr/app/dist ./dist
 
 RUN yarn install --frozen-lockfile --production
 
-CMD yarn prisma generate && TS_NODE_BASEURL=./dist node -r tsconfig-paths/register ./dist/system/infra/http/server.js
+CMD yarn prisma db push && yarn start
