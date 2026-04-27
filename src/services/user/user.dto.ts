@@ -1,4 +1,4 @@
-import { User } from "../generated/prisma/client";
+import { User } from "@prisma/client";
 
 export function renderCurrentUser(user: User) {
   return renderOne(user);
@@ -14,5 +14,5 @@ export function renderOne(user: User) {
     firebaseUid: user.firebaseUid,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
-  }
+  };
 }

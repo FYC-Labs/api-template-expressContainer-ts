@@ -1,8 +1,11 @@
 import admin from "firebase-admin";
-import { ENV } from "../config";
 import crypto from 'crypto';
 
-const { APP_ENV, GCP_TENANT_ID, FIREBASE_SERVICE_ACCOUNT } = ENV;
+const APP_ENV = process.env.APP_ENV;
+const GCP_TENANT_ID = process.env.GCP_TENANT_ID;
+const FIREBASE_SERVICE_ACCOUNT = JSON.parse(
+  process.env.FIREBASE_SERVICE_ACCOUNT || "{}"
+);
 if (!FIREBASE_SERVICE_ACCOUNT) {
   throw new Error("Cannot continue without a firebase service account");
 }

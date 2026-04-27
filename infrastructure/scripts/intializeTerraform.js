@@ -43,7 +43,6 @@ async function intializeTerraform() {
       { resource: 'google_project_service.cloud_sql', id: `${PROJECT_ID}/sqladmin.googleapis.com` },
       { resource: 'google_project_service.firebase', id: `${PROJECT_ID}/firebase.googleapis.com` },
       { resource: 'google_project_service.identity_platform', id: `${PROJECT_ID}/identitytoolkit.googleapis.com` },
-      { resource: 'google_project_service.cloud_functions', id: `${PROJECT_ID}/cloudfunctions.googleapis.com` },
       { resource: 'google_project_service.cloud_storage', id: `${PROJECT_ID}/storage.googleapis.com` },
 
       // Cloud SQL Instances

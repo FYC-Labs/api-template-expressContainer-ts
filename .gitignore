@@ -13,5 +13,4 @@ infrastructure/.terraform.tfstate.backup
 infrastructure/tfplan
 
 !tmp/.gitkeep
-**/generated/
 .yarn/

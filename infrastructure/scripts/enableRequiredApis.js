@@ -22,7 +22,6 @@ function enableRequiredApis() {
     'sqladmin.googleapis.com',
     'firebase.googleapis.com',
     'identitytoolkit.googleapis.com',
-    'cloudfunctions.googleapis.com',
     'run.googleapis.com',
     'cloudbuild.googleapis.com',
     'storage.googleapis.com',

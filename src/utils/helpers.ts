@@ -3,22 +3,23 @@ export const cleanWildcardSqlStr = (str: string) => {
   return `%${str?.replace(/'/g, "''")}%`;
 };
 
-export const safeParse = (stringToParse: any, fallbackData?: any) => {
+export function safeParse(stringToParse: string, fallbackData?: object) {
   try {
     return JSON.parse(stringToParse);
   } catch (error) {
+    console.warn('error parsing JSON', error);
     return fallbackData ?? stringToParse;
   }
 };
 
-export function convertBooleanToYesNo(value: any) {
+export function convertBooleanToYesNo(value: boolean) {
   if (value === true) return 'Yes';
   if (value === false) return 'No';
   return value;
 }
 
-export function convertToNumericValue(value: any) {
-  return !Number.isNaN(parseInt(value, 10)) ? +value : null;
+export function convertToNumericValue(value: string) {
+  return !Number.isNaN(Number(value)) ? Number(value) : null;
 }
 
 export function formatNumberAsString(

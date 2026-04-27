@@ -54,12 +54,6 @@ resource "google_project_service" "identity_platform" {
   disable_on_destroy = false
 }
 
-resource "google_project_service" "cloud_functions" {
-  project            = var.project_id
-  service            = "cloudfunctions.googleapis.com"
-  disable_on_destroy = false
-}
-
 resource "google_project_service" "cloud_storage" {
   project            = var.project_id
   service            = "storage.googleapis.com"

@@ -1,15 +1,15 @@
+import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
 
 import helmet from 'helmet';
 import routes from './routes';
-import { CORS_CONFIG } from './config';
 import { setRequestId, errorHandler } from './routes/middlewares';
 
 const app = express();
 
 app.use(helmet());
-app.use(cors(CORS_CONFIG));
+app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
 app.use(express.json());
 app.use(setRequestId);
 

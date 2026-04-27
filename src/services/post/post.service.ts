@@ -1,5 +1,5 @@
-import { User, Prisma } from 'generated/prisma/client';
-import prisma from '../lib/prisma';
+import { User, Prisma } from '@prisma/client';
+import prisma from '../../lib/prisma';
 
 export async function create(data: Prisma.PostCreateManyInput) {
   return prisma.post.create({

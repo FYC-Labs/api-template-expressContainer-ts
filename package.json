@@ -10,6 +10,7 @@
     "node": "22"
   },
   "scripts": {
+    "encode:service-account": "node scripts/encode-service-account.js",
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf yarn.lock && yarn install",
     "lint": "eslint 'src/**/*.{ts,js}' --fix && tsc --noEmit",
     "build": "tsc",

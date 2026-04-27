@@ -1,4 +1,4 @@
-/* eslint-disable consistent-return */
+ 
 import {
   Router, Request, Response, NextFunction,
 } from 'express';

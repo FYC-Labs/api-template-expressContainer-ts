@@ -1,7 +1,7 @@
 # Express TS API backend template
 
 ## Initial setup
-Define env variables asked for in `src/config/index`.
+Copy `.env.example` to `.env` and set the variables your deployment needs.
 
 ## Install dependencies
 ```console

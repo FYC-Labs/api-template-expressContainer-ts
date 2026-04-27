@@ -1,4 +1,4 @@
-import { Post } from "../generated/prisma/client";
+import { Post } from "@prisma/client";
 
 export function renderOne(post: Post) {
   return {
@@ -7,5 +7,5 @@ export function renderOne(post: Post) {
     description: post.description,
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
-  }
+  };
 }

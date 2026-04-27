@@ -1,25 +1,25 @@
-function removeNestedUndefined(obj: Record<string, any>) {
-  // eslint-disable-next-line no-restricted-syntax
+function removeNestedUndefined(obj: Record<string, unknown>) {
   for (const key in obj) {
     if (obj[key] === undefined) {
-      // eslint-disable-next-line no-param-reassign
+
       delete obj[key];
-    } else if (typeof obj[key] === 'object') {
-      removeNestedUndefined(obj[key]);
+    } else if (obj[key] !== null && typeof obj[key] === 'object') {
+      removeNestedUndefined(obj[key] as Record<string, unknown>);
     }
   }
 }
 
-export function safeParse(stringToParse: any, fallbackData?: any) {
+export function safeParse(stringToParse: string, fallbackData: object = {}) {
   try {
     return JSON.parse(stringToParse);
   } catch (error) {
-    return fallbackData ?? stringToParse;
+    console.warn('error parsing JSON', error);
+    return fallbackData ?? {};
   }
 }
 
-export function cleanFields(obj: any) {
-  const newObj: any = safeParse(JSON.stringify(obj), {});
+export function cleanFields(obj: object) {
+  const newObj = safeParse(JSON.stringify(obj), {}) as Record<string, unknown>;
   removeNestedUndefined(newObj);
   return newObj;
 }
