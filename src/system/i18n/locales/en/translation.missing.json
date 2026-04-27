@@ -1,0 +1,5 @@
+{
+  "@todo_controller_simulation_index/INVALID_SKIP_TYPE": "Pagination flag must be a number.",
+  "@todo_controller_simulation_index/INVALID_REQUEST": "Invalid request.",
+  "@general/VALIDATION_FATAL_FAILURE": "Internal validation failure."
+}
